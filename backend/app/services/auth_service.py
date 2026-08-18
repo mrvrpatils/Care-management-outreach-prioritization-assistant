@@ -103,28 +103,34 @@ def verify_access_token(token: str) -> Optional[Dict[str, Any]]:
         return None
 
 
+from sqlalchemy import or_, func
+
+
 def register_user(db: Session, req: UserRegisterRequest) -> LoginModel:
     """Create a new user in the SQL login table."""
-    # Check if username or email already exists
+    raw_username = req.username.strip()
+    raw_email = req.email.strip() if req.email and req.email.strip() else None
+
+    # Check if username or email already exists (case-insensitive)
     existing = db.query(LoginModel).filter(
         or_(
-            LoginModel.username == req.username.strip(),
-            (LoginModel.email == req.email.strip()) if req.email else False
+            func.lower(LoginModel.username) == raw_username.lower(),
+            (func.lower(LoginModel.email) == raw_email.lower()) if raw_email else False
         )
     ).first()
     if existing:
-        if existing.username == req.username.strip():
-            raise ValueError(f"Username '{req.username}' is already taken.")
+        if existing.username.lower() == raw_username.lower():
+            raise ValueError(f"Username '{raw_username}' is already taken.")
         else:
-            raise ValueError(f"Email '{req.email}' is already registered.")
+            raise ValueError(f"Email '{raw_email}' is already registered.")
 
     hashed = hash_password(req.password)
     user = LoginModel(
-        username=req.username.strip(),
+        username=raw_username,
         password_hash=hashed,
-        email=req.email.strip() if req.email else None,
-        full_name=req.full_name.strip() if req.full_name else req.username.strip(),
-        role=req.role.strip() if req.role else "Care Manager",
+        email=raw_email,
+        full_name=req.full_name.strip() if req.full_name and req.full_name.strip() else raw_username,
+        role=req.role.strip() if req.role and req.role.strip() else "Care Manager",
         created_at=datetime.now(timezone.utc),
     )
     db.add(user)
@@ -134,12 +140,15 @@ def register_user(db: Session, req: UserRegisterRequest) -> LoginModel:
 
 
 def authenticate_user(db: Session, username_or_email: str, password: str) -> Optional[LoginModel]:
-    """Authenticate user credentials against the SQL login table."""
-    identifier = username_or_email.strip()
+    """Authenticate user credentials against the SQL login table (case-insensitive for username/email)."""
+    identifier = (username_or_email or "").strip().lower()
+    if not identifier or not password:
+        return None
+
     user = db.query(LoginModel).filter(
         or_(
-            LoginModel.username == identifier,
-            LoginModel.email == identifier
+            func.lower(LoginModel.username) == identifier,
+            func.lower(LoginModel.email) == identifier
         )
     ).first()
     
@@ -167,4 +176,5 @@ def get_user_by_id(db: Session, user_id: int) -> Optional[LoginModel]:
 
 def get_user_by_username(db: Session, username: str) -> Optional[LoginModel]:
     """Retrieve user from SQL login table by username."""
-    return db.query(LoginModel).filter(LoginModel.username == username).first()
+    return db.query(LoginModel).filter(func.lower(LoginModel.username) == (username or "").strip().lower()).first()
+
