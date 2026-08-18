@@ -69,7 +69,7 @@ class DataService:
         # Load member dataset from database (or CSV fallback)
         try:
             with engine.connect() as conn:
-                self.df = pd.read_sql("SELECT * FROM members", conn)
+                self.df = pd.read_sql("SELECT * FROM members ORDER BY member_id", conn)
         except Exception:
             self.df = pd.DataFrame()
 

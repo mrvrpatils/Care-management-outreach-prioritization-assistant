@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: care-management-outreach-assistant
+    env: docker
+    dockerfilePath: Dockerfile
+    plan: standard
+    healthCheckPath: /health
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: AUTH_SECRET_KEY
+        generateValue: true

@@ -3,7 +3,6 @@ import json
 import pandas as pd
 from .session import engine, SessionLocal, Base
 from .models import MemberModel, OutreachStatusModel, LoginModel
-from ..services.auth_service import hash_password
 
 BACKEND_DIR = Path(__file__).resolve().parents[2]
 DATA_PATH = BACKEND_DIR / "data" / "final_member_dataset.csv"
@@ -74,6 +73,7 @@ def init_db():
         # 3. Seed default login users if empty
         login_count = db.query(LoginModel).count()
         if login_count == 0:
+            from ..services.auth_service import hash_password
             demo_users = [
                 LoginModel(
                     username="admin",
