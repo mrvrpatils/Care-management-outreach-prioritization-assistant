@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Care Management Outreach Prioritization Assistant - Outreach Queue</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+          "primary": "#00685f",
+          "primary-container": "#008378",
+          "secondary": "#006591",
+          "error": "#ba1a1a",
+          "surface-container": "#e5eeff",
+          "surface-container-low": "#eff4ff",
+          "surface-container-lowest": "#ffffff",
+          "outline-variant": "#bcc9c6"
+        },
+        "fontFamily": {
+          "sans": ["Inter", "sans-serif"]
+        }
+      }
+    }
+  }
+</script>
+<style>
+  body {
+    font-family: 'Inter', sans-serif;
+    background-color: #f8f9ff;
+  }
+  .material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  }
+  .skeleton-bar {
+    position: relative;
+    display: inline-block;
+    overflow: hidden;
+    background-color: #E2E8F0;
+    border-radius: 6px;
+    vertical-align: middle;
+  }
+  .skeleton-bar::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background-image: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.65) 50%, rgba(255,255,255,0) 100%);
+    animation: skeleton-shimmer 1.5s ease-in-out infinite;
+  }
+  @keyframes skeleton-shimmer {
+    100% { transform: translateX(100%); }
+  }
+</style>
+</head>
+<body class="bg-[#f8f9ff] text-[#0b1c30] min-h-screen flex">
+<!-- SideNavBar (Shared Component) -->
+<nav data-sidebar class="hidden md:flex bg-white fixed left-0 top-0 h-screen w-[280px] border-r border-[#bcc9c6] shadow-sm flex flex-col py-6 z-50">
+  <div class="px-6 mb-6 flex items-center gap-3">
+    <div class="cw-sidebar-logo w-10 h-10 rounded-full bg-[#008378] flex items-center justify-center text-white shrink-0">
+      <img src="/static/brand-mark.svg" alt="CareWise care management logo" class="cw-brand-mark">
+    </div>
+    <h1 class="text-[18px] font-bold text-[#00685f] leading-tight">Care Management Outreach Prioritization Assistant</h1>
+  </div>
+  <div class="flex-1 px-2 space-y-1 overflow-y-auto">
+    <a class="flex items-center gap-3 px-4 py-3 text-[#3d4947] hover:bg-[#e5eeff]/60 rounded-lg transition-colors" href="/">
+      <span class="material-symbols-outlined">dashboard</span>
+      <span class="text-sm font-medium">Dashboard</span>
+    </a>
+    <a class="flex items-center gap-3 px-4 py-3 text-[#00685f] font-semibold border-r-4 border-[#00685f] bg-[#e5eeff] rounded-l-lg transition-colors" href="/outreach">
+      <span class="material-symbols-outlined">pending_actions</span>
+      <span class="text-sm font-semibold">Outreach Queue</span>
+    </a>
+    <a class="flex items-center gap-3 px-4 py-3 text-[#3d4947] hover:bg-[#e5eeff]/60 rounded-lg transition-colors" href="/analytics">
+      <span class="material-symbols-outlined">analytics</span>
+      <span class="text-sm font-medium">Analytics</span>
+    </a>
+  </div>
+</nav>
+
+<!-- Main Content Area -->
+<div data-sidebar-main class="flex-1 md:ml-[280px] flex flex-col min-w-0">
+  <!-- TopAppBar -->
+  <header class="bg-white top-0 sticky z-40 border-b border-[#e2e8f0] flex justify-between items-center h-16 px-6 shadow-xs">
+    <div class="flex items-center gap-4 flex-1 justify-between">
+      <div class="flex items-center">
+        <span class="text-lg md:text-xl font-bold text-[#00685f]">Care Management Outreach Prioritization Assistant</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Page Content -->
+  <main class="flex-1 p-6 md:p-8 overflow-x-hidden">
+    <!-- Toolbar matching user image -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+      <div class="flex flex-wrap items-center gap-3 flex-1">
+        <!-- Search Box -->
+        <div class="relative w-full sm:w-80">
+          <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[18px]">search</span>
+          <input id="outreach-search" class="w-full h-10 pl-9 pr-4 bg-white border border-[#CBD5E1] rounded-lg text-sm text-[#0f172a] placeholder-[#94A3B8] focus:border-[#00685f] focus:ring-1 focus:ring-[#00685f] outline-none transition-all shadow-xs" placeholder="Search member ID or name..." type="text"/>
+        </div>
+
+        <!-- Priority Select -->
+        <div class="relative">
+          <select id="priority-filter" class="appearance-none h-10 pl-4 pr-9 bg-white border border-[#CBD5E1] rounded-lg text-sm font-medium text-[#334155] hover:border-[#94A3B8] focus:border-[#00685f] focus:ring-1 focus:ring-[#00685f] outline-none cursor-pointer transition-colors shadow-xs">
+            <option value="">All Priorities</option>
+            <option value="high">High Priority</option>
+            <option value="medium">Medium Priority</option>
+            <option value="low">Low Priority</option>
+          </select>
+          <span class="material-symbols-outlined absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-[#64748B] text-[20px]">expand_more</span>
+        </div>
+
+        <!-- Status Select -->
+        <div class="relative">
+          <select id="status-filter" class="appearance-none h-10 pl-4 pr-9 bg-white border border-[#CBD5E1] rounded-lg text-sm font-medium text-[#334155] hover:border-[#94A3B8] focus:border-[#00685f] focus:ring-1 focus:ring-[#00685f] outline-none cursor-pointer transition-colors shadow-xs">
+            <option value="">All Outreach Statuses</option>
+            <option value="Pending">Not Contacted</option>
+            <option value="Follow-up">Follow-up Required</option>
+            <option value="Contacted">Contacted</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Completed">Completed</option>
+          </select>
+          <span class="material-symbols-outlined absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-[#64748B] text-[20px]">expand_more</span>
+        </div>
+      </div>
+
+      <!-- Page Summary Counter -->
+      <div class="text-sm text-[#64748B] whitespace-nowrap self-center font-normal">
+        Showing <strong id="outreach-page-count" class="font-bold text-[#0f172a]">50</strong> members on this page
+      </div>
+    </div>
+
+    <!-- Data Table Card -->
+    <div class="bg-white border border-[#E2E8F0] rounded-xl shadow-xs overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse min-w-[1000px]">
+          <thead>
+            <tr class="bg-[#F0F4F8] border-b border-[#E2E8F0]">
+              <th class="py-3.5 px-4 text-[12px] font-bold text-[#475569] uppercase tracking-wider w-[120px]">MEMBER ID</th>
+              <th class="py-3.5 px-4 text-[12px] font-bold text-[#475569] uppercase tracking-wider w-[200px]">MEMBER NAME</th>
+              <th class="py-3.5 px-4 text-[12px] font-bold text-[#475569] uppercase tracking-wider w-[140px]">PRIORITY SCORE</th>
+              <th class="py-3.5 px-4 text-[12px] font-bold text-[#475569] uppercase tracking-wider w-[150px]">PRIORITY BAND</th>
+              <th class="py-3.5 px-4 text-[12px] font-bold text-[#475569] uppercase tracking-wider">NEXT BEST ACTION</th>
+              <th class="py-3.5 px-4 text-[12px] font-bold text-[#475569] uppercase tracking-wider w-[170px]">OUTREACH STATUS</th>
+              <th class="py-3.5 px-4 text-[12px] font-bold text-[#475569] uppercase tracking-wider w-[100px] text-right">ACTION</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-[#F1F5F9] bg-white text-sm" aria-live="polite">
+            <tr class="skeleton-row"><td class="py-4 px-4"><div class="skeleton-bar h-4 w-20"></div></td><td class="py-4 px-4"><div class="skeleton-bar h-4 w-32"></div></td><td class="py-4 px-4"><div class="skeleton-bar h-4 w-12"></div></td><td class="py-4 px-4"><div class="skeleton-bar h-6 w-24 rounded-md"></div></td><td class="py-4 px-4"><div class="skeleton-bar h-4 w-60"></div></td><td class="py-4 px-4"><div class="skeleton-bar h-6 w-28 rounded-md"></div></td><td class="py-4 px-4 text-right"><div class="skeleton-bar h-6 w-16 rounded-md"></div></td></tr>
+            <tr class="skeleton-row"><td class="py-4 px-4"><div class="skeleton-bar h-4 w-20"></div></td><td class="py-4 px-4"><div class="skeleton-bar h-4 w-36"></div></td><td class="py-4 px-4"><div class="skeleton-bar h-4 w-12"></div></td><td class="py-4 px-4"><div class="skeleton-bar h-6 w-24 rounded-md"></div></td><td class="py-4 px-4"><div class="skeleton-bar h-4 w-64"></div></td><td class="py-4 px-4"><div class="skeleton-bar h-6 w-28 rounded-md"></div></td><td class="py-4 px-4 text-right"><div class="skeleton-bar h-6 w-16 rounded-md"></div></td></tr>
+            <tr class="skeleton-row"><td class="py-4 px-4"><div class="skeleton-bar h-4 w-20"></div></td><td class="py-4 px-4"><div class="skeleton-bar h-4 w-28"></div></td><td class="py-4 px-4"><div class="skeleton-bar h-4 w-12"></div></td><td class="py-4 px-4"><div class="skeleton-bar h-6 w-24 rounded-md"></div></td><td class="py-4 px-4"><div class="skeleton-bar h-4 w-52"></div></td><td class="py-4 px-4"><div class="skeleton-bar h-6 w-28 rounded-md"></div></td><td class="py-4 px-4 text-right"><div class="skeleton-bar h-6 w-16 rounded-md"></div></td></tr>
+            <tr class="skeleton-row"><td class="py-4 px-4"><div class="skeleton-bar h-4 w-20"></div></td><td class="py-4 px-4"><div class="skeleton-bar h-4 w-32"></div></td><td class="py-4 px-4"><div class="skeleton-bar h-4 w-12"></div></td><td class="py-4 px-4"><div class="skeleton-bar h-6 w-24 rounded-md"></div></td><td class="py-4 px-4"><div class="skeleton-bar h-4 w-56"></div></td><td class="py-4 px-4"><div class="skeleton-bar h-6 w-28 rounded-md"></div></td><td class="py-4 px-4 text-right"><div class="skeleton-bar h-6 w-16 rounded-md"></div></td></tr>
+            <tr class="skeleton-row"><td class="py-4 px-4"><div class="skeleton-bar h-4 w-20"></div></td><td class="py-4 px-4"><div class="skeleton-bar h-4 w-30"></div></td><td class="py-4 px-4"><div class="skeleton-bar h-4 w-12"></div></td><td class="py-4 px-4"><div class="skeleton-bar h-6 w-24 rounded-md"></div></td><td class="py-4 px-4"><div class="skeleton-bar h-4 w-60"></div></td><td class="py-4 px-4"><div class="skeleton-bar h-6 w-28 rounded-md"></div></td><td class="py-4 px-4 text-right"><div class="skeleton-bar h-6 w-16 rounded-md"></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination Footer -->
+      <div id="pagination-container" class="bg-white border-t border-[#E2E8F0] px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <span id="showing-range" class="text-sm text-[#64748B]">Showing 0 to 0 of 0 members</span>
+        <div id="pagination-pages" class="flex items-center gap-1.5">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="/static/sidebar.js" defer></script>
+<script>
+const API_BASE = '';
+
+function esc(v){
+  return String(v??'--').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function formatPriorityScore(score) {
+  let num = Number(score || 0);
+  if (num > 0 && num <= 1.0) {
+    num = num * 100;
+  }
+  return num.toFixed(2);
+}
+
+function bandBadge(band) {
+  const b = String(band || '').trim().toLowerCase();
+  if (b.includes('high')) {
+    return `<span class="inline-flex items-center px-3 py-1 rounded-md text-[12px] font-semibold bg-[#FEF2F2] text-[#991B1B] border border-[#FECACA]">High Priority</span>`;
+  }
+  if (b.includes('medium') || b.includes('med')) {
+    return `<span class="inline-flex items-center px-3 py-1 rounded-md text-[12px] font-semibold bg-[#FFFBEB] text-[#B45309] border border-[#FDE68A]">Medium Priority</span>`;
+  }
+  return `<span class="inline-flex items-center px-3 py-1 rounded-md text-[12px] font-semibold bg-[#F0FDF4] text-[#166534] border border-[#BBF7D0]">Low Priority</span>`;
+}
+
+function normalizeStatusValue(v){
+  if(!v && v!==0) return '';
+  var s = String(v).trim().toLowerCase();
+  if(/^not[\s-]*contacted$/i.test(s) || s === 'pending') return 'notcontacted';
+  if(/^follow[\s-]*up[\s-]*required$/i.test(s) || /^follow[\s-]*up$/i.test(s)) return 'followup';
+  if(/^in[\s-]*progress$/i.test(s)) return 'inprogress';
+  if(/^contacted$/i.test(s)) return 'contacted';
+  if(/^completed$/i.test(s)) return 'completed';
+  return s.replace(/[ _-]/g,'').replace(/[^a-z]/g,'');
+}
+
+function statusBadge(status) {
+  const s = String(status || 'Pending').trim();
+  const norm = normalizeStatusValue(s);
+  if (norm === 'notcontacted' || norm === 'pending') {
+    return `<span class="inline-flex items-center px-3 py-1 rounded-md text-[12px] font-medium bg-[#F8FAFC] text-[#475569] border border-[#CBD5E1]">Not Contacted</span>`;
+  }
+  if (norm === 'followup' || norm === 'followuprequired') {
+    return `<span class="inline-flex items-center px-3 py-1 rounded-md text-[12px] font-medium bg-[#FFF7ED] text-[#C2410C] border border-[#FED7AA]">Follow-up Required</span>`;
+  }
+  if (norm === 'contacted') {
+    return `<span class="inline-flex items-center px-3 py-1 rounded-md text-[12px] font-medium bg-[#F0FDF4] text-[#15803D] border border-[#BBF7D0]">Contacted</span>`;
+  }
+  if (norm === 'inprogress') {
+    return `<span class="inline-flex items-center px-3 py-1 rounded-md text-[12px] font-medium bg-[#EFF6FF] text-[#1D4ED8] border border-[#BFDBFE]">In Progress</span>`;
+  }
+  if (norm === 'completed') {
+    return `<span class="inline-flex items-center px-3 py-1 rounded-md text-[12px] font-medium bg-[#ECFDF5] text-[#047857] border border-[#A7F3D0]">Completed</span>`;
+  }
+  return `<span class="inline-flex items-center px-3 py-1 rounded-md text-[12px] font-medium bg-[#F8FAFC] text-[#475569] border border-[#CBD5E1]">${esc(s)}</span>`;
+}
+
+function normalizePriorityValue(v){
+  if(!v && v!==0) return '';
+  return String(v).toLowerCase().replace(/[^a-z]/g,'').replace(/priority$/,'');
+}
+
+// Client-side controls state
+let _page = 1, _page_size = 50, _total = 0, _priority = '', _status = '', _query = '', _sort = 'priority_score_desc';
+let _allItems = null;
+
+function updateToolbarFromDOM(){
+  const priSelect = document.getElementById('priority-filter');
+  const statSelect = document.getElementById('status-filter');
+  if(priSelect) _priority = String(priSelect.value || '').trim();
+  if(statSelect) _status = String(statSelect.value || '').trim();
+  _query = String(document.getElementById('outreach-search')?.value || '').trim().toLowerCase();
+}
+
+async function fetchAllItems(){
+  try{
+    const first = await fetch('/api/priority-queue?page=1&page_size=100');
+    if(!first.ok) throw new Error('Priority queue fetch failed '+first.status);
+    const initial = await first.json();
+    const pageCount = Math.ceil((initial.total || 0) / 100);
+    const remaining = await Promise.all(Array.from({length: Math.max(0, pageCount - 1)}, (_, index) =>
+      fetch(`/api/priority-queue?page=${index + 2}&page_size=100`).then(r => r.ok ? r.json() : {items: []})
+    ));
+    return (initial.items || []).concat(...remaining.map(page => page.items || []));
+  }catch(e){
+    console.error('fetchAllItems error',e);
+    return [];
+  }
+}
+
+async function loadQueue(page=1){
+  try{
+    updateToolbarFromDOM();
+    _page = page;
+    
+    if(!_allItems){ _allItems = await fetchAllItems(); }
+
+    const mapped = _allItems.map(m => ({
+      member_id: m.member_id || m.id || m.memberId || m.member || m.MEMBER_ID || m.MEMBERID,
+      member_name: m.member_name || m.name || m.memberName || m.full_name || m.fullName,
+      priority_score: (m.priority_score!==undefined? m.priority_score : (m.score!==undefined? m.score : m.priorityScore)) || 0,
+      priority_band: m.priority_band || m.priority || m.priorityBand || (m.priority_level? String(m.priority_level): undefined),
+      main_risk_factors: m.main_risk_factors || m.risk_factors || m.risks || [],
+      next_best_action: m.next_best_action || m.nextAction || m.action || m.recommended_action || '',
+      outreach_status: m.outreach_status || m.status || m.outreachStatus || m.engagement_status || ''
+    }));
+
+    // Apply filters
+    const priFilter = normalizePriorityValue(_priority);
+    const statFilter = normalizeStatusValue(_status);
+
+    let filtered = mapped.filter(m=>{
+      if(priFilter){
+        const pb = normalizePriorityValue(m.priority_band||m.priority);
+        if(!pb || pb !== priFilter) return false;
+      }
+      if(statFilter){
+        const st = normalizeStatusValue(m.outreach_status||m.status||m.engagement_status);
+        if(!st || st !== statFilter) return false;
+      }
+      if(_query){
+        const searchable = [m.member_name, m.member_id, m.next_best_action].filter(Boolean).join(' ').toLowerCase();
+        if(!searchable.includes(_query)) return false;
+      }
+      return true;
+    });
+
+    // Default sort by priority score descending
+    filtered.sort((a,b)=>Number(b.priority_score||0)-Number(a.priority_score||0));
+
+    _total = filtered.length;
+
+    const startIdx = (_page-1)*_page_size;
+    const pageSlice = filtered.slice(startIdx, startIdx+_page_size);
+    const tbody = document.querySelector('table tbody');
+    if(!tbody) throw new Error('Queue table body not found');
+
+    tbody.innerHTML = pageSlice.length ? pageSlice.map(m=>`
+      <tr data-member-id="${encodeURIComponent(m.member_id||m.id||'')}" class="hover:bg-[#F8FAFC] transition-colors border-b border-[#F1F5F9]">
+        <td class="py-4 px-4 font-semibold text-[#0f172a] text-[13px]">${esc(m.member_id||m.id||'')}</td>
+        <td class="py-4 px-4 font-bold text-[#0f172a] text-[14px]">${esc(m.member_name||m.name||'')}</td>
+        <td class="py-4 px-4 font-bold text-[#dc2626] text-[14px]">${esc(formatPriorityScore(m.priority_score))}</td>
+        <td class="py-4 px-4">${bandBadge(m.priority_band||m.priority)}</td>
+        <td class="py-4 px-4 text-[#334155] text-[13px] leading-relaxed">${esc(m.next_best_action||m.nextAction||'')}</td>
+        <td class="py-4 px-4">${statusBadge(m.outreach_status||m.status)}</td>
+        <td class="py-4 px-4 text-right">
+          <a href="/member?id=${encodeURIComponent(m.member_id||m.id||'')}" class="view-member inline-flex items-center gap-1.5 px-3 py-1 bg-white border border-[#CBD5E1] hover:bg-[#F8FAFC] hover:border-[#94A3B8] text-[#334155] text-xs font-semibold rounded-md shadow-xs transition-colors cursor-pointer">
+            <svg class="w-3.5 h-3.5 text-[#475569]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+            <span>View</span>
+          </a>
+        </td>
+      </tr>
+    `).join('') : '<tr><td colspan="7" class="py-12 px-4 text-center text-[#64748B]">No members match the current search and filters.</td></tr>';
+
+    // Update Showing counters
+    const countEl = document.getElementById('outreach-page-count');
+    if(countEl) countEl.textContent = String(pageSlice.length);
+
+    const showingRange = document.getElementById('showing-range');
+    if(showingRange){
+      const from = _total === 0 ? 0 : startIdx + 1;
+      const to = Math.min(_page * _page_size, _total);
+      showingRange.textContent = `Showing ${from} to ${to} of ${_total.toLocaleString()} members`;
+    }
+
+    renderPagination();
+  }catch(e){
+    console.error('Queue load failed', e);
+  }
+}
+
+function renderPagination(){
+  const pagesDiv = document.getElementById('pagination-pages');
+  if(!pagesDiv) return;
+
+  const totalPages = Math.max(1, Math.ceil(_total/_page_size));
+  pagesDiv.innerHTML = '';
+
+  // Prev button
+  const prev = document.createElement('button');
+  prev.className = `p-1.5 rounded-lg border border-[#CBD5E1] text-[#334155] hover:bg-[#F1F5F9] transition-colors disabled:opacity-40 disabled:cursor-not-allowed`;
+  prev.disabled = _page <= 1;
+  prev.innerHTML = '<span class="material-symbols-outlined text-[18px]">chevron_left</span>';
+  prev.onclick = () => { if(_page > 1) loadQueue(_page - 1); };
+  pagesDiv.appendChild(prev);
+
+  // Page Numbers
+  const start = Math.max(1, _page - 2);
+  const end = Math.min(totalPages, start + 4);
+
+  if (start > 1) {
+    const firstBtn = document.createElement('button');
+    firstBtn.className = 'w-8 h-8 rounded-lg text-sm font-medium hover:bg-[#F1F5F9] text-[#334155] border border-transparent';
+    firstBtn.textContent = '1';
+    firstBtn.onclick = (e) => { e.preventDefault(); loadQueue(1); };
+    pagesDiv.appendChild(firstBtn);
+    if (start > 2) {
+      const dots = document.createElement('span');
+      dots.className = 'px-1 text-slate-400';
+      dots.textContent = '...';
+      pagesDiv.appendChild(dots);
+    }
+  }
+
+  for(let i = start; i <= end; i++){
+    const b = document.createElement('button');
+    b.className = `w-8 h-8 rounded-lg text-sm font-semibold transition-colors ${
+      i === _page
+        ? 'bg-[#00685f] text-white border border-[#00685f]'
+        : 'text-[#334155] hover:bg-[#F1F5F9] border border-transparent'
+    }`;
+    b.textContent = i;
+    b.onclick = (ev) => { ev.preventDefault(); loadQueue(i); };
+    pagesDiv.appendChild(b);
+  }
+
+  if (end < totalPages) {
+    if (end < totalPages - 1) {
+      const dots = document.createElement('span');
+      dots.className = 'px-1 text-slate-400';
+      dots.textContent = '...';
+      pagesDiv.appendChild(dots);
+    }
+    const lastBtn = document.createElement('button');
+    lastBtn.className = 'w-8 h-8 rounded-lg text-sm font-medium hover:bg-[#F1F5F9] text-[#334155] border border-transparent';
+    lastBtn.textContent = totalPages;
+    lastBtn.onclick = (e) => { e.preventDefault(); loadQueue(totalPages); };
+    pagesDiv.appendChild(lastBtn);
+  }
+
+  // Next button
+  const next = document.createElement('button');
+  next.className = `p-1.5 rounded-lg border border-[#CBD5E1] text-[#334155] hover:bg-[#F1F5F9] transition-colors disabled:opacity-40 disabled:cursor-not-allowed`;
+  next.disabled = _page >= totalPages;
+  next.innerHTML = '<span class="material-symbols-outlined text-[18px]">chevron_right</span>';
+  next.onclick = () => { if(_page < totalPages) loadQueue(_page + 1); };
+  pagesDiv.appendChild(next);
+}
+
+// Wire toolbar controls and search
+document.addEventListener('DOMContentLoaded', () => {
+  const priSelect = document.getElementById('priority-filter');
+  const statSelect = document.getElementById('status-filter');
+  const searchInput = document.getElementById('outreach-search');
+
+  // Read URL search params
+  const params = new URLSearchParams(window.location.search);
+  const pParam = params.get('priority');
+  const sParam = params.get('status');
+
+  if (priSelect && pParam) {
+    for (const opt of priSelect.options) {
+      if (opt.value.toLowerCase() === pParam.toLowerCase() || normalizePriorityValue(opt.value) === normalizePriorityValue(pParam)) {
+        priSelect.value = opt.value;
+        break;
+      }
+    }
+  }
+
+  if (statSelect && sParam) {
+    for (const opt of statSelect.options) {
+      if (opt.value.toLowerCase() === sParam.toLowerCase() || normalizeStatusValue(opt.value) === normalizeStatusValue(sParam)) {
+        statSelect.value = opt.value;
+        break;
+      }
+    }
+  }
+
+  if (priSelect) priSelect.addEventListener('change', () => { _page = 1; loadQueue(1); });
+  if (statSelect) statSelect.addEventListener('change', () => { _page = 1; loadQueue(1); });
+
+  let searchTimeout = null;
+  if (searchInput) {
+    searchInput.addEventListener('input', () => {
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(() => { _page = 1; loadQueue(1); }, 200);
+    });
+  }
+
+  loadQueue(1);
+
+  window.addEventListener('carewise:status-updated', () => {
+    _allItems = null;
+    loadQueue(_page);
+  });
+  window.addEventListener('focus', () => {
+    _allItems = null;
+    loadQueue(_page);
+  });
+});
+</script>
+<script src="/static/sidebar.js" defer></script>
+</body>
+</html>
+

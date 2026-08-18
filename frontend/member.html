@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Care Management Outreach Prioritization Assistant - Member 360</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-variant": "#d3e4fe",
+                      "on-surface-variant": "#3d4947",
+                      "background": "#f8f9ff",
+                      "on-primary-fixed": "#00201d",
+                      "surface": "#f8f9ff",
+                      "inverse-primary": "#6bd8cb",
+                      "surface-bright": "#f8f9ff",
+                      "surface-container-highest": "#d3e4fe",
+                      "surface-container-high": "#dce9ff",
+                      "primary": "#00685f",
+                      "secondary-container": "#39b8fd",
+                      "primary-fixed-dim": "#6bd8cb",
+                      "tertiary-fixed-dim": "#bec6e0",
+                      "tertiary-container": "#6c748b",
+                      "outline": "#6d7a77",
+                      "on-secondary-fixed": "#001e2f",
+                      "on-secondary-fixed-variant": "#004c6e",
+                      "inverse-on-surface": "#eaf1ff",
+                      "on-tertiary-container": "#fefcff",
+                      "on-primary-fixed-variant": "#005049",
+                      "secondary-fixed-dim": "#89ceff",
+                      "surface-container-low": "#eff4ff",
+                      "surface-container": "#e5eeff",
+                      "on-primary": "#ffffff",
+                      "on-primary-container": "#f4fffc",
+                      "on-tertiary-fixed": "#131b2e",
+                      "primary-fixed": "#89f5e7",
+                      "on-tertiary-fixed-variant": "#3f465c",
+                      "on-secondary": "#ffffff",
+                      "secondary-fixed": "#c9e6ff",
+                      "tertiary": "#545c72",
+                      "on-error": "#ffffff",
+                      "on-secondary-container": "#004666",
+                      "on-surface": "#0b1c30",
+                      "on-tertiary": "#ffffff",
+                      "primary-container": "#008378",
+                      "surface-dim": "#cbdbf5",
+                      "secondary": "#006591",
+                      "tertiary-fixed": "#dae2fd",
+                      "inverse-surface": "#213145",
+                      "error-container": "#ffdad6",
+                      "on-background": "#0b1c30",
+                      "on-error-container": "#93000a",
+                      "error": "#ba1a1a",
+                      "surface-container-lowest": "#ffffff",
+                      "surface-tint": "#006a61",
+                      "outline-variant": "#bcc9c6"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "container-padding": "24px",
+                      "element-gap-sm": "8px",
+                      "section-gap": "32px",
+                      "gutter": "16px",
+                      "unit": "4px",
+                      "element-gap-md": "12px"
+              },
+              "fontFamily": {
+                      "display-lg": ["Inter"],
+                      "label-md": ["Inter"],
+                      "body-md": ["Inter"],
+                      "code-md": ["Inter"],
+                      "headline-sm": ["Inter"],
+                      "body-sm": ["Inter"],
+                      "headline-md": ["Inter"],
+                      "body-lg": ["Inter"],
+                      "headline-lg": ["Inter"],
+                      "title-lg": ["Inter"]
+              },
+              "fontSize": {
+                      "display-lg": ["36px", {"lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                      "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                      "code-md": ["13px", {"lineHeight": "18px", "fontWeight": "500"}],
+                      "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                      "body-sm": ["12px", {"lineHeight": "16px", "fontWeight": "400"}],
+                      "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                      "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                      "headline-lg": ["28px", {"lineHeight": "36px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                      "title-lg": ["18px", {"lineHeight": "24px", "fontWeight": "600"}]
+              }
+            }
+          }
+        }
+    </script>
+<style>
+        body { background-color: theme('colors.background'); color: theme('colors.on-background'); }
+        /* Tonal Layering */
+        .surface-0 { background-color: #FFFFFF; }
+        .surface-1 { background-color: #FFFFFF; border: 1px solid #E2E8F0; box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04); border-radius: 12px; }
+        .surface-2 { background-color: #FFFFFF; box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08); border-radius: 12px; }
+        
+        /* Critical Care Components */
+        .status-badge-high { background-color: #FEE2E2; color: #991B1B; } /* Light Red bg, Dark Red text */
+        .status-badge-neutral { background-color: #E0F2FE; color: #0369A1; }
+        .progress-bar-bg { background-color: #E2E8F0; }
+        .progress-bar-fill-teal { background-color: #0D9488; }
+        .progress-bar-fill-blue { background-color: #0EA5E9; }
+
+        /* Buttons */
+        .btn-primary { background-color: #0D9488; color: #FFFFFF; font-weight: 700; border-radius: 6px; padding: 8px 16px; }
+        .btn-secondary { background-color: #FFFFFF; border: 1px solid #E2E8F0; color: #0F172A; border-radius: 6px; padding: 8px 16px; }
+
+        /* Table specific */
+        .table-header { background-color: #F8FAFC; color: #0F172A; text-transform: uppercase; font-size: 12px; font-weight: 600; }
+        .table-row:hover { background-color: #F0FDFA; }
+        .member-header-meta { column-gap: 0.75rem; row-gap: 0.5rem; }
+        .member-header-actions { row-gap: 0.5rem; }
+        @media (min-width: 1024px) {
+            .member-header-meta { column-gap: 0.875rem; }
+        }
+    </style>
+</head>
+<body class="flex min-h-screen">
+<!-- SideNavBar -->
+<nav data-sidebar class="fixed left-0 top-0 h-screen w-[280px] bg-surface-container-lowest border-r border-outline-variant shadow-sm flex flex-col py-6 z-50">
+<div class="px-6 mb-8 flex items-center gap-3">
+<div class="cw-sidebar-logo w-10 h-10 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container shrink-0">
+<svg viewBox="0 0 40 40" width="22" height="22" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M20 7C17 1, 3 9, 3 18C3 26, 20 34, 20 34C20 34, 37 26, 37 18C37 9, 23 1, 20 7Z" fill="#008378"/>
+  <path d="M8 30C8 30, 12 36, 20 32C28 36, 32 30, 32 30" stroke="#008378" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M10 33C10 33, 13 38, 20 35C27 38, 30 33, 30 33" stroke="#f4fffc" stroke-width="1.5" stroke-linecap="round" opacity="0.9"/>
+  <g fill="#f4fffc">
+    <circle cx="13" cy="19" r="1.8"/>
+    <circle cx="20" cy="17" r="1.8"/>
+    <circle cx="27" cy="19" r="1.8"/>
+  </g>
+  <g stroke="#f4fffc" stroke-width="1.2" stroke-linecap="round">
+    <line x1="13" y1="20.8" x2="13" y2="24"/>
+    <line x1="20" y1="18.8" x2="20" y2="22"/>
+    <line x1="27" y1="20.8" x2="27" y2="24"/>
+  </g>
+</svg>
+</div>
+<div class="text-title-lg font-title-lg font-bold text-primary leading-tight">Care Management Outreach Prioritization Assistant</div>
+</div>
+<div class="flex-1 overflow-y-auto">
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container transition-colors cursor-pointer active:opacity-80" href="/">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">dashboard</span>
+<span class="text-label-md font-label-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container transition-colors cursor-pointer active:opacity-80" href="/outreach">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">pending_actions</span>
+<span class="text-label-md font-label-md">Outreach Queue</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container transition-colors cursor-pointer active:opacity-80" href="/analytics">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">analytics</span>
+<span class="text-label-md font-label-md">Analytics</span>
+</a>
+</div>
+<div class="mt-auto border-t border-outline-variant pt-4">
+</div>
+</nav>
+<!-- Main Content Area -->
+<main data-sidebar-main class="flex-1 ml-[280px] flex flex-col min-h-screen">
+<!-- TopAppBar -->
+<header class="docked full-width top-0 sticky z-40 bg-surface border-b border-outline-variant flex justify-between items-center h-16 px-6">
+<div class="flex items-center gap-4">
+<span class="text-title-lg md:text-headline-sm font-headline-sm font-bold text-primary">Care Management Outreach Prioritization Assistant</span>
+<span class="text-on-surface-variant px-3 border-l border-outline-variant hidden sm:inline">Member Profile</span>
+</div>
+</header>
+<!-- Dashboard Content -->
+<div id="member-profile-loading" class="p-container-padding flex-1" role="status" aria-live="polite">
+<div class="surface-1 p-5 text-body-md text-on-surface-variant">Loading member profile…</div>
+</div>
+<div id="member-not-found" class="p-container-padding flex-1" role="alert" hidden>
+<div class="surface-1 p-5 text-body-md text-on-surface-variant">Member not found.</div>
+</div>
+<div id="member-profile-content" class="p-container-padding space-y-section-gap flex-1" hidden aria-busy="true">
+<!-- Member Header & Key Metrics Bento -->
+<div class="grid grid-cols-12 gap-gutter">
+<!-- Member ID Card (Spans 8) -->
+<div class="col-span-12 lg:col-span-8 surface-1 p-5 flex flex-col xl:flex-row gap-5 items-start xl:items-center justify-between">
+<div class="flex w-full min-w-0 items-start gap-5 xl:flex-1">
+<div class="w-16 h-16 rounded-full overflow-hidden border-2 border-surface-variant shrink-0">
+<div class="w-full h-full bg-surface-container-high flex items-center justify-center text-primary" role="img" aria-label="Member profile placeholder"><span class="material-symbols-outlined text-[38px]">person</span></div>
+</div>
+<div class="min-w-0 flex-1">
+<h1 class="text-headline-md font-headline-md text-on-surface m-0">Loading member…</h1>
+<div class="member-header-meta flex flex-wrap items-center text-body-md font-body-md text-tertiary mt-2">
+<span id="member-id" class="whitespace-nowrap">ID: Loading…</span>
+<span aria-hidden="true" class="w-1 h-1 rounded-full bg-outline"></span>
+<span id="member-location" class="flex min-w-0 items-center gap-1 whitespace-nowrap"><span class="material-symbols-outlined text-sm">location_on</span> Loading…</span>
+</div>
+</div>
+</div>
+<div class="member-header-actions flex w-full flex-wrap items-center gap-2 xl:w-auto xl:justify-end">
+<span class="status-badge-high px-3 py-1 rounded-full text-label-md font-label-md flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">warning</span> High Priority
+</span>
+<span class="status-badge-neutral px-3 py-1 rounded-full text-label-md font-label-md flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">medication</span> Diabetic
+</span>
+<span id="member-outreach-status" class="inline-flex items-center px-3.5 py-1.5 rounded-lg text-body-md font-medium bg-[#f8fafc] text-[#0369a1] border border-[#cbd5e1]">
+Not Contacted
+</span>
+</div>
+</div>
+<!-- Priority Score Dial (Spans 4) -->
+<div class="col-span-12 lg:col-span-4 surface-1 p-5 flex items-center justify-center relative overflow-hidden">
+<div class="absolute inset-0 bg-error/5 rounded-xl"></div>
+<div class="relative flex flex-col items-center">
+<div class="text-body-sm font-body-sm text-tertiary uppercase tracking-wider font-semibold mb-2">Priority Score</div>
+<div class="flex items-baseline gap-1">
+<span id="member-priority-score" class="text-display-lg font-display-lg text-error">92</span>
+<span class="text-body-lg text-tertiary">/100</span>
+</div>
+<div class="w-full bg-progress-bar-bg h-2 rounded-full mt-3 overflow-hidden">
+<div class="bg-error h-full rounded-full w-[92%]"></div>
+</div>
+<div id="member-priority-band" class="text-body-sm text-on-surface-variant mt-2 text-center">Loading priority band…</div>
+</div>
+</div>
+</div>
+<!-- Main Content Grid -->
+<div class="grid grid-cols-12 gap-gutter">
+<!-- Left Column (Spans 4) -->
+<div class="col-span-12 lg:col-span-4 space-y-gutter">
+<!-- Burden Scores -->
+<div class="surface-1 p-5">
+<h2 class="text-title-lg font-title-lg text-on-surface border-b border-surface-variant pb-3 mb-4">Burden Scores</h2>
+<div class="space-y-4">
+<div>
+<div class="flex justify-between text-body-sm font-body-sm mb-1">
+<span class="text-on-surface-variant">Clinical Risk</span>
+<span class="font-semibold text-error">88</span>
+</div>
+<div class="w-full bg-progress-bar-bg h-[6px] rounded-full overflow-hidden"><div class="bg-error h-full rounded-full w-[88%]"></div></div>
+</div>
+<div>
+<div class="flex justify-between text-body-sm font-body-sm mb-1">
+<span class="text-on-surface-variant">Utilization Risk</span>
+<span class="font-semibold text-primary">75</span>
+</div>
+<div class="w-full bg-progress-bar-bg h-[6px] rounded-full overflow-hidden"><div class="progress-bar-fill-teal h-full rounded-full w-[75%]"></div></div>
+</div>
+<div>
+<div class="flex justify-between text-body-sm font-body-sm mb-1">
+<span class="text-on-surface-variant">Care Gap Burden</span>
+<span class="font-semibold text-primary">60</span>
+</div>
+<div class="w-full bg-progress-bar-bg h-[6px] rounded-full overflow-hidden"><div class="progress-bar-fill-teal h-full rounded-full w-[60%]"></div></div>
+</div>
+<div>
+<div class="flex justify-between text-body-sm font-body-sm mb-1">
+<span class="text-on-surface-variant">Social Risk (SDoH)</span>
+<span class="font-semibold text-secondary">42</span>
+</div>
+<div class="w-full bg-progress-bar-bg h-[6px] rounded-full overflow-hidden"><div class="progress-bar-fill-blue h-full rounded-full w-[42%]"></div></div>
+</div>
+</div>
+</div>
+<!-- History & Timeline -->
+<div class="surface-1 p-5">
+<h2 class="text-title-lg font-title-lg text-on-surface border-b border-surface-variant pb-3 mb-4">Recent History</h2>
+<div id="recent-history-timeline" class="relative pl-4 border-l-2 border-surface-variant space-y-6" aria-live="polite"></div>
+</div>
+<!-- Outreach History remains separate from clinical recent history. -->
+<div class="surface-1 p-5">
+<h2 class="text-title-lg font-title-lg text-on-surface border-b border-surface-variant pb-3 mb-4">Outreach History</h2>
+<div id="outreach-history" class="space-y-3" aria-live="polite"><div class="rounded-lg border border-outline-variant/50 bg-surface-container-low px-4 py-3"><p class="text-body-sm text-on-surface-variant">No outreach activity has been recorded for this member.</p></div></div>
+</div>
+</div>
+<!-- Right Column (Spans 8) -->
+<div class="col-span-12 lg:col-span-8 space-y-gutter">
+<!-- Explainability / SHAP Chart Area -->
+<div class="surface-1 p-5">
+<h2 class="text-title-lg font-title-lg text-on-surface border-b border-surface-variant pb-3 mb-4">Priority Drivers (Why High Risk?)</h2>
+<div class="bg-surface-container-low rounded-lg p-4 border border-outline-variant/50">
+<p class="text-body-md text-on-surface-variant mb-4">The AI model prioritized this member based on acute utilization and clinical risk indicators.</p>
+<!-- Simulated SHAP Bar Chart -->
+<div class="space-y-3">
+<div class="flex items-center gap-3">
+<div class="w-1/3 text-right text-body-sm font-medium text-on-surface">Recent Care Event Signal</div>
+<div class="w-2/3 flex items-center gap-2">
+<div class="bg-error h-4 rounded-r-sm w-[85%]"></div>
+<span class="text-label-md text-error">+0.32</span>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<div class="w-1/3 text-right text-body-sm font-medium text-on-surface">ER Utilization Signal</div>
+<div class="w-2/3 flex items-center gap-2">
+<div class="bg-error/80 h-4 rounded-r-sm w-[65%]"></div>
+<span class="text-label-md text-error/80">+0.24</span>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<div class="w-1/3 text-right text-body-sm font-medium text-on-surface">Medication Gap</div>
+<div class="w-2/3 flex items-center gap-2">
+<div class="bg-error/60 h-4 rounded-r-sm w-[45%]"></div>
+<span class="text-label-md text-error/60">+0.15</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Recommended Action -->
+<div class="surface-1 p-5 border-l-4 border-l-primary bg-primary/5">
+<div class="flex items-start gap-4">
+<div class="bg-primary/20 p-2 rounded-full text-primary shrink-0 mt-1">
+<span class="material-symbols-outlined">lightbulb</span>
+</div>
+<div>
+<h3 class="text-headline-sm font-headline-sm text-on-surface mb-2">Recommended Next Best Action</h3>
+<p class="text-body-lg text-on-surface-variant mb-4">Loading recommended action…</p>
+<div class="flex gap-3">
+<button class="btn-primary">Initiate Outreach</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Active Care Gaps Table -->
+<div class="surface-1 overflow-hidden">
+<div class="p-5 border-b border-surface-variant">
+<h2 class="text-title-lg font-title-lg text-on-surface">Active Care Gaps</h2>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="table-header border-b border-surface-variant">
+<th class="p-4 font-semibold">Gap Type</th>
+<th class="p-4 font-semibold">Status</th>
+<th class="p-4 font-semibold text-right">Action</th>
+</tr>
+</thead>
+<tbody class="text-body-md text-on-surface">
+<tr class="table-row border-b border-surface-variant/50">
+<td class="p-4 font-medium flex items-center gap-2">
+<span class="material-symbols-outlined text-error text-sm">visibility</span>
+                                            Diabetic Eye Exam
+                                        </td>
+<td class="p-4"><span class="status-badge-high px-2 py-0.5 rounded text-xs">Overdue</span></td>
+<td class="p-4 text-right"><button class="text-primary hover:underline font-semibold text-sm">Schedule</button></td>
+</tr>
+<tr class="table-row border-b border-surface-variant/50">
+<td class="p-4 font-medium flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-sm">favorite</span>
+                                            Annual Wellness Exam
+                                        </td>
+<td class="p-4"><span class="bg-surface-variant text-on-surface-variant px-2 py-0.5 rounded text-xs font-medium">Due Soon</span></td>
+<td class="p-4 text-right"><button class="text-primary hover:underline font-semibold text-sm">Schedule</button></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<script>
+const API_BASE = '';
+const params=new URLSearchParams(location.search);
+const memberId=params.get('mid')||params.get('id');
+function formatPriorityScore(value){const score=Number(value);return Number.isFinite(score)?score.toFixed(2):'--';}
+function setText(el,v){if(el)el.textContent=v??'--';}
+function showMemberProfile(){
+  document.getElementById('member-profile-loading').hidden=true;
+  const content=document.getElementById('member-profile-content');
+  content.hidden=false;
+  content.setAttribute('aria-busy','false');
+}
+function showMemberNotFound(){
+  document.getElementById('member-profile-loading').hidden=true;
+  document.getElementById('member-profile-content').hidden=true;
+  document.getElementById('member-not-found').hidden=false;
+}
+function escapeHtml(value){return String(value??'').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));}
+function outreachHistoryKey(){return `carewise.outreach-history.${memberId}`;}
+function renderOutreachHistory(){
+  const container=document.getElementById('outreach-history');
+  if(!container || !memberId) return;
+  let records=[];
+  try{records=JSON.parse(localStorage.getItem(outreachHistoryKey())||'[]');}catch(e){console.error('Outreach history read failed',e);}
+  if(!Array.isArray(records)||!records.length){container.innerHTML='<div class="rounded-lg border border-outline-variant/50 bg-surface-container-low px-4 py-3"><p class="text-body-sm text-on-surface-variant">No outreach activity has been recorded for this member.</p></div>';return;}
+  container.innerHTML=records.map(record=>{
+    const actions=Array.isArray(record.actions)&&record.actions.length ? record.actions.map(escapeHtml).join(', ') : 'No recommended actions selected';
+    const timestamp=record.timestamp ? new Date(record.timestamp).toLocaleString() : 'Date unavailable';
+    return `<article class="rounded-lg border border-outline-variant/50 bg-surface-container-low p-4"><div class="flex flex-wrap items-center justify-between gap-2 mb-2"><span class="font-semibold text-on-surface">${escapeHtml(record.status||'Pending')}</span><time class="text-body-sm text-tertiary">${escapeHtml(timestamp)}</time></div><p class="text-body-sm text-on-surface-variant mb-2">${escapeHtml(record.notes||'No call notes recorded.')}</p><p class="text-body-sm text-on-surface"><span class="font-semibold">Recommended actions:</span> ${actions}</p></article>`;
+  }).join('');
+}
+function renderRecentHistory(utilization, discharge){
+  const container=document.getElementById('recent-history-timeline');
+  if(!container) return;
+  const items=[];
+  if(discharge?.recent_discharge_30d){
+    items.push(['Recent care signal','Activity detected within the last 30 days.','bg-primary-container']);
+  }
+  if(utilization.er_visits_30d){
+    items.push(['ER utilization',`${utilization.er_visits_30d} ER visit${utilization.er_visits_30d===1?'':'s'} recorded in the last 30 days.`,'bg-error']);
+  }
+  if(utilization.hospitalizations_30d){
+    items.push(['Hospital utilization',`${utilization.hospitalizations_30d} hospitalization${utilization.hospitalizations_30d===1?'':'s'} recorded in the last 30 days.`,'bg-error']);
+  }
+  if(utilization.outpatient_visits_30d){
+    items.push(['Outpatient utilization',`${utilization.outpatient_visits_30d} outpatient visit${utilization.outpatient_visits_30d===1?'':'s'} recorded in the last 30 days.`,'bg-primary-container']);
+  }
+  container.innerHTML=items.length ? items.map(([title,detail,color])=>`<div class="relative"><div class="absolute -left-[23px] w-3 h-3 rounded-full ${color} ring-4 ring-white"></div><div class="text-body-sm text-tertiary mb-1">Derived utilization / signal (last 30 days)</div><div class="text-body-md font-semibold text-on-surface">${title}</div><div class="text-body-sm text-on-surface-variant">${detail}</div></div>`).join('') : '<p class="text-body-sm text-on-surface-variant">No detailed event history is available for this member.</p>';
+}
+function renderMemberStatus(status){
+  const s = String(status || 'Pending').trim();
+  const norm = s.toLowerCase();
+  let label = s;
+  let bgClass = 'bg-[#f8fafc]';
+  let textClass = 'text-[#0369a1]';
+  let borderClass = 'border-[#cbd5e1]';
+
+  if (norm === 'pending' || norm === 'not contacted' || norm === 'notcontacted') {
+    label = 'Not Contacted';
+    bgClass = 'bg-[#f8fafc]';
+    textClass = 'text-[#0369a1]';
+    borderClass = 'border-[#cbd5e1]';
+  } else if (norm === 'inprogress' || norm === 'in progress') {
+    label = 'In Progress';
+    bgClass = 'bg-[#eff6ff]';
+    textClass = 'text-[#1d4ed8]';
+    borderClass = 'border-[#bfdbfe]';
+  } else if (norm === 'followup' || norm === 'follow-up' || norm === 'follow-up required' || norm === 'followuprequired') {
+    label = 'Follow-up';
+    bgClass = 'bg-[#fff7ed]';
+    textClass = 'text-[#c2410c]';
+    borderClass = 'border-[#fed7aa]';
+  } else if (norm === 'contacted') {
+    label = 'Contacted';
+    bgClass = 'bg-[#f0fdf4]';
+    textClass = 'text-[#15803d]';
+    borderClass = 'border-[#bbf7d0]';
+  } else if (norm === 'completed') {
+    label = 'Completed';
+    bgClass = 'bg-[#ecfdf5]';
+    textClass = 'text-[#047857]';
+    borderClass = 'border-[#a7f3d0]';
+  }
+
+  const el = document.getElementById('member-outreach-status');
+  if (el) {
+    el.textContent = label;
+    el.className = `inline-flex items-center px-3.5 py-1.5 rounded-lg text-body-md font-medium ${bgClass} ${textClass} border ${borderClass}`;
+  }
+}
+async function loadMember(){
+  if(!memberId){ showMemberNotFound(); return; }
+  try{
+    const r=await fetch(`${API_BASE}/api/members/${encodeURIComponent(memberId)}`);
+    if(!r.ok) throw new Error(`Member API ${r.status}`);
+    const d=await r.json();
+    const m=d.member,p=d.priority,u=d.utilization,c=d.care_gaps,s=d.social_risk;
+    if(String(m.member_id).toUpperCase()!==String(memberId).toUpperCase()) throw new Error('Member response did not match the requested ID');
+    renderRecentHistory(u,d.discharge);
+    const h1=document.querySelector('main h1');setText(h1,m.member_name);
+    renderMemberStatus(d.outreach_status);
+    setText(document.getElementById('member-id'),`ID: #${m.member_id}`);
+    setText(document.getElementById('member-location'),'Location unavailable');
+    const score=document.getElementById('member-priority-score'); setText(score,formatPriorityScore(p.score));
+    setText(document.getElementById('member-priority-band'),`Priority band: ${p.band}`);
+    const progress=document.querySelector('.text-display-lg')?.parentElement?.parentElement?.querySelector('.bg-error'); if(progress) progress.style.width=`${Math.min(100,Math.max(0,p.score))}%`;
+    const badges=[...document.querySelectorAll('.status-badge-high,.status-badge-neutral')]; if(badges[0]) badges[0].innerHTML=`<span class="material-symbols-outlined text-sm">warning</span> ${p.band}`; if(badges[1]) badges[1].innerHTML=`<span class="material-symbols-outlined text-sm">monitor_heart</span> ${m.diabetes?'Diabetic':(m.hypertension?'Hypertension':'Member')}`;
+    const burdenLabels=[...document.querySelectorAll('h2')].find(x=>x.textContent.includes('Burden Scores'))?.parentElement;
+    if(burdenLabels){
+      const vals=[Math.round((m.condition_count/3)*100),Math.min(100,u.total_utilization_30d*15),Math.min(100,c.care_gap_count*20),Math.min(100,s.social_risk_count*20)];
+      [...burdenLabels.querySelectorAll('.font-semibold')].forEach((el,i)=>setText(el,vals[i]??'--'));
+      [...burdenLabels.querySelectorAll('.h-full')].forEach((el,i)=>{if(vals[i]!=null)el.style.width=`${vals[i]}%`;});
+    }
+    const actionP=[...document.querySelectorAll('h3')].find(x=>x.textContent.includes('Recommended Next Best Action'))?.nextElementSibling; setText(actionP,d.next_best_action);
+    const why=[...document.querySelectorAll('h2')].find(x=>x.textContent.includes('Priority Drivers'))?.parentElement?.querySelector('p'); if(why) why.textContent=`The model prioritized ${m.member_name} based on the member's current utilization, care-gap and social-risk signals.`;
+    const actionBtn=[...document.querySelectorAll('button')].find(b=>b.textContent.includes('Initiate Outreach')); if(actionBtn) actionBtn.onclick=()=>location.href=`/call-guide?id=${encodeURIComponent(m.member_id)}`;
+    const driverBox=[...document.querySelectorAll('h2')].find(x=>x.textContent.includes('Priority Drivers'))?.parentElement?.querySelector('.space-y-3');
+    if(driverBox){
+      driverBox.innerHTML='<p class="text-body-sm text-on-surface-variant">Loading priority drivers…</p>';
+      fetch(`${API_BASE}/api/members/${encodeURIComponent(memberId)}/explanation`).then(x=>x.ok?x.json():null).catch(()=>null).then(exp=>{
+        const arr=exp?.top_positive||exp?.top_factors||[];
+        const readableLabel=item=>String(item.label||item.feature||item.name||'Factor').replace(/_/g,' ').replace(/\b\w/g,letter=>letter.toUpperCase());
+        driverBox.innerHTML=Array.isArray(arr)&&arr.length ? arr.slice(0,5).map((x,i)=>{const name=readableLabel(x);const val=Number(x.contribution??x.shap_value??x.value??0);const pct=Math.min(100,Math.max(8,Math.abs(val)*200));return `<div class="flex items-center gap-3"><div class="w-1/3 text-right text-body-sm font-medium text-on-surface">${name}</div><div class="w-2/3 flex items-center gap-2"><div class="bg-error h-4 rounded-r-sm" style="width:${pct}%"></div><span class="text-label-md text-error">${val.toFixed(3)}</span></div></div>`}).join('') : '<p class="text-body-sm text-on-surface-variant">Priority drivers are unavailable for this member.</p>';
+      });
+    }
+    // care gap summary
+    const gapHeading=[...document.querySelectorAll('h2')].find(x=>x.textContent.includes('Active Care Gaps'));
+    if(gapHeading){ const tbody=gapHeading.parentElement?.parentElement?.querySelector('tbody'); if(tbody){const gaps=[]; if(c.overdue_screening)gaps.push(['Overdue Screening','Overdue']); if(c.overdue_lab)gaps.push(['Overdue Lab','Overdue']); if(c.medication_gap)gaps.push(['Medication Gap','Open']); tbody.innerHTML=gaps.length ? gaps.map(g=>`<tr class="table-row border-b border-surface-variant/50"><td class="p-4 font-medium">${g[0]}</td><td class="p-4"><span class="status-badge-high px-2 py-0.5 rounded text-xs">${g[1]}</span></td><td class="p-4 text-right"><button type="button" data-care-gap="${g[0]}" class="review-care-gap text-primary hover:underline font-semibold text-sm">Review</button></td></tr>`).join('') : '<tr><td colspan="3" class="p-4 text-on-surface-variant">No active care gaps.</td></tr>';}}
+    showMemberProfile();
+  }catch(e){console.error('Member load failed',e);showMemberNotFound();}
+}
+renderOutreachHistory();
+window.addEventListener('storage', event => { if(event.key===outreachHistoryKey()) renderOutreachHistory(); });
+window.addEventListener('focus', renderOutreachHistory);
+loadMember();
+</script>
+<script src="/static/sidebar.js" defer></script>
+<script>
+document.addEventListener('click', (event) => {
+  const button = event.target.closest('.review-care-gap');
+  if (!button) return;
+  let modal = document.getElementById('care-gap-review-modal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'care-gap-review-modal';
+    modal.className = 'fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4';
+    document.body.appendChild(modal);
+  }
+  modal.innerHTML = `<div class="bg-white rounded-xl shadow-xl max-w-md w-full p-6"><h2 class="text-title-lg font-bold mb-3">${button.dataset.careGap} review</h2><p class="text-on-surface-variant mb-5">This care gap is identified from the current member record. Review the member details and coordinate the appropriate follow-up.</p><div class="flex justify-end gap-3"><button type="button" class="close-care-gap px-4 py-2 border rounded">Close</button><a class="px-4 py-2 bg-primary text-white rounded" href="/call-guide?id=${encodeURIComponent(memberId)}">Initiate outreach</a></div></div>`;
+</script></body></html>

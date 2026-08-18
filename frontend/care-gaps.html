@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Care Management Outreach Prioritization Assistant - Care Gap Analysis</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+  <style>
+    .card-shadow{box-shadow:0 4px 12px rgba(15,23,42,.04)}
+    .progress-track{height:10px;background:#E2E8F0;border-radius:9999px;overflow:hidden}
+    .progress-fill{height:100%;background:#0EA5E9;border-radius:9999px}
+  </style>
+</head>
+<body class="bg-surface text-on-surface font-body-md min-h-screen">
+<!-- SideNavBar -->
+<nav data-sidebar class="bg-surface-container-lowest fixed left-0 top-0 h-screen w-[280px] border-r border-outline-variant shadow-sm flex flex-col py-6 z-50">
+<div class="px-6 mb-8 flex items-center gap-3">
+<div class="cw-sidebar-logo w-10 h-10 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container shrink-0">
+<svg viewBox="0 0 40 40" width="22" height="22" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M20 7C17 1, 3 9, 3 18C3 26, 20 34, 20 34C20 34, 37 26, 37 18C37 9, 23 1, 20 7Z" fill="#008378"/>
+  <path d="M8 30C8 30, 12 36, 20 32C28 36, 32 30, 32 30" stroke="#008378" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M10 33C10 33, 13 38, 20 35C27 38, 30 33, 30 33" stroke="#f4fffc" stroke-width="1.5" stroke-linecap="round" opacity="0.9"/>
+  <g fill="#f4fffc">
+    <circle cx="13" cy="19" r="1.8"/>
+    <circle cx="20" cy="17" r="1.8"/>
+    <circle cx="27" cy="19" r="1.8"/>
+  </g>
+  <g stroke="#f4fffc" stroke-width="1.2" stroke-linecap="round">
+    <line x1="13" y1="20.8" x2="13" y2="24"/>
+    <line x1="20" y1="18.8" x2="20" y2="22"/>
+    <line x1="27" y1="20.8" x2="27" y2="24"/>
+  </g>
+</svg>
+</div>
+<h1 class="text-title-lg font-title-lg font-bold text-primary leading-tight">Care Management Outreach Prioritization Assistant</h1>
+</div>
+  <div class="flex-1 overflow-y-auto px-2">
+    <ul class="flex flex-col gap-1">
+      <li><a class="flex items-center gap-3 px-6 py-3 text-on-surface-variant hover:bg-surface-container transition-colors rounded-lg" href="/"><span class="material-symbols-outlined">dashboard</span><span class="text-label-md">Dashboard</span></a></li>
+      <li><a class="flex items-center gap-3 px-6 py-3 text-on-surface-variant hover:bg-surface-container transition-colors rounded-lg" href="/outreach"><span class="material-symbols-outlined">pending_actions</span><span class="text-label-md">Outreach Queue</span></a></li>
+      <li><a class="flex items-center gap-3 px-6 py-3 text-on-surface-variant hover:bg-surface-container transition-colors rounded-lg" href="/analytics"><span class="material-symbols-outlined">analytics</span><span class="text-label-md">Analytics</span></a></li>
+      <li><a class="flex items-center gap-3 px-6 py-3 text-primary font-bold bg-surface-container-low rounded-lg" href="/care-gaps"><span class="material-symbols-outlined">medical_services</span><span class="text-label-md">Care Gaps</span></a></li>
+    </ul>
+  </div>
+</nav>
+<!-- TopAppBar -->
+<header data-sidebar-main class="bg-surface border-b border-outline-variant docked full-width top-0 sticky z-40 flex justify-between items-center h-16 px-6 ml-[280px]">
+  <div class="flex items-center gap-4">
+    <span class="text-title-lg md:text-headline-sm font-headline-sm font-bold text-primary">Care Management Outreach Prioritization Assistant</span>
+    <span class="text-on-surface-variant px-3 border-l border-outline-variant hidden sm:inline">Care Gap Analysis</span>
+  </div>
+  <div class="flex items-center gap-6">
+    <div class="relative hidden md:block">
+      <input class="pl-10 pr-4 h-10 w-64 border border-outline-variant rounded-DEFAULT bg-surface-container-lowest text-body-md" placeholder="Search care gaps..." type="text"/>
+    </div>
+  </div>
+</header>
+<div id="care-gaps-loading" class="ml-[280px] p-8 bg-background min-h-[calc(100vh-64px)] text-body-md text-on-surface-variant" role="status">Loading care gaps…</div>
+<main id="care-gaps-content" data-sidebar-main class="ml-[280px] p-8 bg-background min-h-[calc(100vh-64px)]" hidden aria-busy="true">
+  <div class="mb-6 flex justify-between items-center">
+    <div>
+      <h2 class="text-display-lg font-display-lg">Care Gap Analysis</h2>
+      <p class="text-body-lg text-on-surface-variant">Care-gap burden from the current dataset</p>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-12 gap-6">
+    <div class="col-span-6 bg-surface-container-lowest rounded-xl p-5 border card-shadow">
+      <h3 class="text-label-md text-on-surface-variant mb-2">Open Gaps (members)</h3>
+      <div id="open-gaps-count" class="text-headline-lg font-bold">--</div>
+    </div>
+    <div class="col-span-6 bg-surface-container-lowest rounded-xl p-5 border card-shadow">
+      <h3 class="text-label-md text-on-surface-variant mb-2">Total Open Gaps (count)</h3>
+      <div id="total-open-gaps" class="text-headline-lg font-bold">--</div>
+    </div>
+
+    <div class="col-span-12 bg-surface-container-lowest rounded-xl p-4 border card-shadow">
+      <h3 class="text-headline-sm mb-4">Gap Categories</h3>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead class="bg-surface-container-low text-label-md text-on-surface-variant uppercase border-b">
+            <tr>
+              <th class="py-3 px-4">Gap Category</th>
+              <th class="py-3 px-4">Total Identified</th>
+              <th class="py-3 px-4">Open Gaps</th>
+              <th class="py-3 px-4">Closed Gaps</th>
+              <th class="py-3 px-4">Closure Rate</th>
+              <th class="py-3 px-4">Progress</th>
+              <th class="py-3 px-4">Action</th>
+            </tr>
+          </thead>
+          <tbody id="gap-rows" class="text-body-md">
+            <!-- rows injected by JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div id="campaign-modal" class="fixed inset-0 bg-black/40 hidden items-center justify-center">
+    <div class="bg-white rounded-lg p-6 w-96">
+      <h3 id="modal-title" class="font-bold mb-2">Prepare Campaign</h3>
+      <div id="modal-body" class="mb-4"></div>
+      <div class="flex justify-end gap-2">
+        <button id="modal-cancel" class="px-4 py-2 border rounded">Cancel</button>
+        <button id="modal-start" class="px-4 py-2 bg-primary text-white rounded">Start Campaign</button>
+      </div>
+    </div>
+  </div>
+
+</main>
+<script src="/static/sidebar.js" defer></script>
+<script>
+// map UI category -> dataframe column name (used for API calls)
+const CATEGORY_MAP = {
+  'Diabetic Eye Exam': 'overdue_screening',
+  'Colorectal Screening': 'overdue_screening',
+  'Breast Cancer Screening': 'overdue_screening',
+  'HbA1c Control (< 8.0)': 'overdue_lab'
+};
+
+// map dataframe column name -> analytics response key
+const ANALYTICS_KEY_FOR = {
+  'overdue_screening': 'members_with_overdue_screening',
+  'overdue_lab': 'members_with_overdue_lab',
+  'medication_gap': 'members_with_medication_gap'
+};
+
+async function loadCareGaps(){
+  try{
+    const d = await fetch('/api/analytics').then(r=>r.json());
+    document.getElementById('open-gaps-count').textContent = d.care_gaps?.members_with_care_gaps ?? '--';
+    document.getElementById('total-open-gaps').textContent = d.care_gaps?.total_care_gaps ?? '--';
+    const rows = document.getElementById('gap-rows'); rows.innerHTML='';
+    const categories = Object.keys(CATEGORY_MAP);
+    for(const cat of categories){
+      const field = CATEGORY_MAP[cat];
+      const analyticsKey = ANALYTICS_KEY_FOR[field] || field;
+      const total = (d.care_gaps && d.care_gaps[analyticsKey]) || countFromCategory(field) || 0;
+      const open = total; // dataset marks 'overdue_' as open
+      const closed = '--';
+      const closureRate = (typeof closed === 'number' && total>0) ? ((closed/total)*100).toFixed(1)+'%' : '--';
+      const progressPct = (closureRate==='--')?0:Math.round((Number(closureRate.replace('%',''))));
+      const tr = document.createElement('tr');
+      tr.className='border-b';
+      tr.innerHTML = `
+        <td class="py-3 px-4">${cat}</td>
+        <td class="py-3 px-4">${total}</td>
+        <td class="py-3 px-4">${open}</td>
+        <td class="py-3 px-4">${closed}</td>
+        <td class="py-3 px-4">${closureRate}</td>
+        <td class="py-3 px-4"><div class="progress-track"><div class="progress-fill" style="width:${progressPct}%"></div></div></td>
+        <td class="py-3 px-4"><button class="run-campaign px-3 py-1 bg-secondary text-white rounded" data-cat="${cat}">Run Campaign</button></td>
+      `;
+      rows.appendChild(tr);
+    }
+    attachCampaignHandlers();
+  }catch(e){ console.error('loadCareGaps failed',e); }
+  finally{
+    document.getElementById('care-gaps-loading').hidden=true;
+    const content=document.getElementById('care-gaps-content');
+    content.hidden=false;
+    content.setAttribute('aria-busy','false');
+  }
+}
+
+function countFromCategory(field){
+  // fallback: try to fetch via a quick API that returns totals per-field (we rely on /api/analytics)
+  return 0;
+}
+
+function attachCampaignHandlers(){
+  document.querySelectorAll('.run-campaign').forEach(btn=>{
+    btn.addEventListener('click', async (ev)=>{
+      const cat = btn.getAttribute('data-cat');
+      const field = CATEGORY_MAP[cat];
+      // prepare summary by calling backend endpoint to count members
+      const res = await fetch(`/api/care-gaps/${encodeURIComponent(field)}/summary`);
+      const json = await res.json();
+      showModal(cat, json.count, json.open_gaps);
+    });
+  });
+}
+
+function showModal(category, membersCount, openGaps){
+  const modal = document.getElementById('campaign-modal');
+  document.getElementById('modal-title').textContent = `Prepare campaign for ${category}`;
+  document.getElementById('modal-body').innerHTML = `<p>Care-gap category: <strong>${category}</strong></p><p>Members affected: <strong>${membersCount}</strong></p><p>Open gaps: <strong>${openGaps}</strong></p><p>Suggested outreach: Care manager review and targeted outreach.</p>`;
+  modal.classList.remove('hidden'); modal.classList.add('flex');
+  document.getElementById('modal-cancel').onclick = ()=>{ modal.classList.add('hidden'); };
+  document.getElementById('modal-start').onclick = async ()=>{
+    // POST to create campaign
+    const field = CATEGORY_MAP[category];
+    const res = await fetch(`/api/care-gaps/${encodeURIComponent(field)}/campaign`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({initiator:'ui'})});
+    const result = await res.json();
+    document.getElementById('modal-body').innerHTML = `<p>Campaign prepared for care-manager review. (${result.campaign_id})</p>`;
+    setTimeout(()=>{ modal.classList.add('hidden'); },1200);
+  };
+}
+
+// initialize
+document.addEventListener('DOMContentLoaded', loadCareGaps);
+</script>
+<script src="/static/sidebar.js" defer></script>
+</body>
+</html>

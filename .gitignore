@@ -1,0 +1,21 @@
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Secrets
+.env
+*.env
+
+# Test/cache
+test-results/
+.coverage
+
+# IDE
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db

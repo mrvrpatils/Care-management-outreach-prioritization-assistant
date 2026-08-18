@@ -1,0 +1,33 @@
+{
+  "base_value": -1.8382125984712983,
+  "features": [
+    "age",
+    "condition_count",
+    "diabetes",
+    "hypertension",
+    "heart_disease",
+    "er_visits_30d",
+    "hospitalizations_30d",
+    "outpatient_visits_30d",
+    "total_utilization_30d",
+    "acute_utilization_30d",
+    "recent_discharge_30d",
+    "days_since_discharge",
+    "post_discharge_24h",
+    "care_gap_count",
+    "overdue_screening",
+    "overdue_lab",
+    "medication_gap",
+    "transportation_barrier",
+    "food_insecurity",
+    "housing_instability",
+    "financial_barrier",
+    "social_risk_count"
+  ],
+  "best_model": "Logistic Regression",
+  "priority_bands": {
+    "high_min": 70,
+    "medium_min": 40
+  },
+  "target": "Synthetic outreach_need target derived from project notebook methodology"
+}

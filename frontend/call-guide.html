@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Care Management Outreach Prioritization Assistant - AI Call Guide</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+  body {
+    font-family: 'Inter', sans-serif;
+    background-color: #f8f9ff;
+  }
+  .material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  }
+  /* Plain CSS3 Styles for AI Call Guide Card */
+  .cw-guide-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
+  }
+  .cw-guide-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 10px;
+  }
+  .cw-ai-badge-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #0284c7;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .cw-ai-meta {
+    font-size: 12px;
+    color: #64748b;
+    font-weight: 500;
+  }
+  .cw-ai-desc {
+    font-size: 14px;
+    color: #334155;
+    line-height: 1.5;
+    margin-bottom: 18px;
+  }
+  .cw-gen-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background-color: #0284c7;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 10px 22px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+  }
+  .cw-gen-btn:hover:not(:disabled) {
+    background-color: #0369a1;
+  }
+  .cw-gen-btn:disabled {
+    opacity: 0.75;
+    cursor: not-allowed;
+  }
+  .cw-ai-panel {
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 20px;
+    margin-top: 20px;
+  }
+  .cw-panel-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+  .cw-ai-badge-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #0284c7;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .cw-copy-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    color: #334155;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 5px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.15s ease;
+  }
+  .cw-copy-btn:hover {
+    background: #f1f5f9;
+  }
+  .cw-script-blocks {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .cw-script-block {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .cw-block-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .cw-block-title {
+    color: #0284c7;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .cw-mini-copy {
+    background: transparent;
+    border: none;
+    color: #64748b;
+    font-size: 11px;
+    font-weight: 500;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+  .cw-mini-copy:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+  }
+  .cw-block-box {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 12px 14px;
+    font-size: 13.5px;
+    line-height: 1.55;
+    color: #1e293b;
+  }
+  .cw-questions-list {
+    margin: 0;
+    padding-left: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .cw-fallback-section {
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid #e2e8f0;
+  }
+  .cw-fallback-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #475569;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .cw-fallback-box {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 12px 14px;
+    font-size: 13px;
+    line-height: 1.5;
+    color: #475569;
+  }
+  .cw-fallback-caption {
+    font-size: 11px;
+    color: #64748b;
+    margin-top: 6px;
+    font-style: italic;
+  }
+  .cw-spinner {
+    animation: cw-spin 1s linear infinite;
+  }
+  @keyframes cw-spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+</style>
+</head>
+<body class="bg-[#f8f9ff] text-[#0b1c30] flex min-h-screen font-body-md">
+<!-- SideNavBar (Shared Component) -->
+<nav data-sidebar class="fixed left-0 top-0 h-screen w-[280px] bg-white border-r border-[#bcc9c6] shadow-sm z-50 hidden md:flex flex-col py-6">
+  <div class="px-6 mb-6 flex items-center gap-3">
+    <div class="cw-sidebar-logo w-10 h-10 rounded-full bg-[#008378] flex items-center justify-center text-white shrink-0">
+      <img src="/static/brand-mark.svg" alt="CareWise logo" class="cw-brand-mark">
+    </div>
+    <h1 class="text-[18px] font-bold text-[#00685f] leading-tight">Care Management Outreach Prioritization Assistant</h1>
+  </div>
+  <div class="flex-1 px-2 space-y-1 overflow-y-auto">
+    <a class="flex items-center gap-3 px-4 py-3 text-[#3d4947] hover:bg-[#e5eeff]/60 rounded-lg transition-colors" href="/">
+      <span class="material-symbols-outlined">dashboard</span>
+      <span class="text-sm font-medium">Dashboard</span>
+    </a>
+    <a class="flex items-center gap-3 px-4 py-3 text-[#3d4947] hover:bg-[#e5eeff]/60 rounded-lg transition-colors" href="/outreach">
+      <span class="material-symbols-outlined">pending_actions</span>
+      <span class="text-sm font-medium">Outreach Queue</span>
+    </a>
+    <a class="flex items-center gap-3 px-4 py-3 text-[#3d4947] hover:bg-[#e5eeff]/60 rounded-lg transition-colors" href="/analytics">
+      <span class="material-symbols-outlined">analytics</span>
+      <span class="text-sm font-medium">Analytics</span>
+    </a>
+  </div>
+</nav>
+
+<!-- Main Content Area -->
+<main data-sidebar-main class="flex-1 flex flex-col ml-0 md:ml-[280px] min-h-screen">
+  <!-- TopAppBar -->
+  <header class="bg-white sticky top-0 z-40 border-b border-[#e2e8f0] flex justify-between items-center h-16 px-6 shadow-xs">
+    <div class="flex items-center gap-4">
+      <h2 class="text-lg md:text-xl font-bold text-[#00685f]">Care Management Outreach Prioritization Assistant</h2>
+      <span class="text-[#64748b] px-3 border-l border-[#e2e8f0] hidden sm:inline text-sm font-medium">Clinical Call Guide</span>
+    </div>
+    <div>
+      <a href="/outreach" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-[#cbd5e1] hover:bg-[#f1f5f9] text-[#334155] rounded-lg text-xs font-semibold transition-colors">
+        <span class="material-symbols-outlined text-[16px]">arrow_back</span>
+        <span>Back to Queue</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- Page Content Container -->
+  <div class="flex-1 p-6 md:p-8 space-y-6 overflow-y-auto max-w-7xl mx-auto w-full">
+    
+    <!-- TOP HORIZONTAL SUMMARY CARDS GRID -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+      
+      <!-- Card 1: Member Profile & Risk -->
+      <div class="bg-white rounded-xl p-5 border border-[#e2e8f0] shadow-xs flex flex-col justify-between">
+        <div>
+          <div class="flex items-center gap-3.5 mb-4 pb-3 border-b border-[#f1f5f9]">
+            <div id="guide-member-initials" class="w-11 h-11 rounded-full bg-[#e5eeff] text-[#00685f] flex items-center justify-center text-base font-bold shrink-0">--</div>
+            <div class="min-w-0">
+              <h3 id="guide-member-name" class="text-base font-bold text-[#0f172a] truncate">Loading member…</h3>
+              <p id="guide-member-id" class="text-xs text-[#64748b] font-medium">ID: —</p>
+            </div>
+          </div>
+          
+          <div class="space-y-3">
+            <div>
+              <p class="text-[11px] font-bold text-[#64748b] uppercase tracking-wider mb-1">Primary Condition</p>
+              <div id="guide-member-conditions" class="inline-flex items-center gap-1.5 bg-[#fef2f2] text-[#991b1b] border border-[#fecaca] px-2.5 py-0.5 rounded-md text-xs font-semibold">
+                <span class="material-symbols-outlined text-[14px]">monitor_heart</span>
+                <span>Loading…</span>
+              </div>
+            </div>
+
+            <div>
+              <p class="text-[11px] font-bold text-[#64748b] uppercase tracking-wider mb-1">Recent Utilization Signal</p>
+              <p id="guide-member-utilization" class="text-xs text-[#334155] leading-snug">Loading…</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-3 border-t border-[#f1f5f9] mt-3">
+          <div class="flex justify-between items-center text-[11px] font-bold text-[#64748b] uppercase mb-1">
+            <span>Priority Score</span>
+            <span id="guide-risk-score" class="text-xs font-bold text-[#dc2626]">—/100</span>
+          </div>
+          <div class="h-2 bg-[#f1f5f9] rounded-full overflow-hidden">
+            <div id="guide-risk-bar" class="h-full bg-[#dc2626]" style="width: 0%"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 2: Recommended Care Goal -->
+      <div class="bg-white rounded-xl p-5 border border-[#e2e8f0] shadow-xs flex flex-col justify-between">
+        <div>
+          <div class="flex items-center gap-2 mb-3 pb-2 border-b border-[#f1f5f9]">
+            <span class="material-symbols-outlined text-[#00685f] text-[20px]">lightbulb</span>
+            <h4 class="text-xs font-bold text-[#0f172a] uppercase tracking-wider">Recommended Care Goal</h4>
+          </div>
+          <p id="guide-goal" class="text-xs text-[#334155] leading-relaxed border-l-2 border-[#00685f] pl-3 py-1 bg-[#f8fafc] rounded-r-md">
+            Loading goal…
+          </p>
+        </div>
+        <div class="mt-4 pt-3 border-t border-[#f1f5f9] flex items-center justify-between text-xs text-[#64748b]">
+          <span>Clinical ML Rule Engine</span>
+          <span class="inline-flex items-center gap-1 text-[#00685f] font-semibold">
+            <span class="material-symbols-outlined text-[14px]">verified</span> Active Plan
+          </span>
+        </div>
+      </div>
+
+      <!-- Card 3: Key Discussion Points -->
+      <div class="bg-white rounded-xl p-5 border border-[#e2e8f0] shadow-xs flex flex-col justify-between">
+        <div>
+          <div class="flex items-center gap-2 mb-3 pb-2 border-b border-[#f1f5f9]">
+            <span class="material-symbols-outlined text-[#00685f] text-[20px]">checklist</span>
+            <h4 class="text-xs font-bold text-[#0f172a] uppercase tracking-wider">Key Discussion Points</h4>
+          </div>
+          <ul id="guide-discussion-points" class="space-y-2 text-xs text-[#334155]">
+            <li class="flex items-start gap-2">
+              <span class="w-4 h-4 rounded-full bg-[#e5eeff] text-[#00685f] font-bold flex items-center justify-center text-[10px] shrink-0 mt-0.5">1</span>
+              <span>Review recent care events and verify symptoms.</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="w-4 h-4 rounded-full bg-[#e5eeff] text-[#00685f] font-bold flex items-center justify-center text-[10px] shrink-0 mt-0.5">2</span>
+              <span>Confirm medication supply and adherence.</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="w-4 h-4 rounded-full bg-[#e5eeff] text-[#00685f] font-bold flex items-center justify-center text-[10px] shrink-0 mt-0.5">3</span>
+              <span>Identify any transportation or scheduling barriers.</span>
+            </li>
+          </ul>
+        </div>
+        <div class="mt-4 pt-3 border-t border-[#f1f5f9] text-[11px] text-[#64748b] italic">
+          * Care manager clinical alignment checklist
+        </div>
+      </div>
+
+    </div>
+
+    <!-- MAIN AI CALL GUIDE SECTION (HORIZONTALLY ALIGNED BELOW) -->
+    <div class="cw-guide-card">
+      <!-- Card Header -->
+      <div class="cw-guide-card-header">
+        <div class="cw-ai-badge-header">
+          <svg class="w-4 h-4 text-[#0284c7]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
+          </svg>
+          <span>GEMINI AI CALL GUIDE</span>
+        </div>
+        <div class="cw-ai-meta">Generated on demand</div>
+      </div>
+
+      <p class="cw-ai-desc">
+        Generate a dynamic, conversational call script synthesized from the member's clinical risk profile and next best action.
+      </p>
+
+      <!-- Primary Generate Button -->
+      <button id="btn-generate-ai" type="button" class="cw-gen-btn">
+        <svg id="icon-generate-sparkle" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
+        </svg>
+        <span id="label-generate-ai">Generate AI Call Guide</span>
+      </button>
+
+      <!-- AI Tailored Script Panel (5 distinct blocks) -->
+      <div id="ai-script-panel" class="cw-ai-panel" style="display: none;">
+        <div class="cw-panel-top">
+          <div class="cw-ai-badge-title">
+            <svg class="w-4 h-4 text-[#0284c7]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/>
+            </svg>
+            <span>AI Tailored Script</span>
+          </div>
+          <button id="btn-copy-all" type="button" class="cw-copy-btn">
+            <span class="material-symbols-outlined text-[16px]">content_copy</span>
+            <span id="label-copy-all">Copy All</span>
+          </button>
+        </div>
+
+        <div class="cw-script-blocks">
+          <!-- 1. OPENING -->
+          <div class="cw-script-block">
+            <div class="cw-block-top">
+              <span class="cw-block-title">OPENING</span>
+              <button type="button" class="cw-mini-copy" data-copy-target="script-opening">
+                <span class="material-symbols-outlined text-[14px]">content_copy</span>
+                <span>Copy</span>
+              </button>
+            </div>
+            <div id="script-opening" class="cw-block-box">
+              Loading opening greeting…
+            </div>
+          </div>
+
+          <!-- 2. REASON FOR OUTREACH -->
+          <div class="cw-script-block">
+            <div class="cw-block-top">
+              <span class="cw-block-title">REASON FOR OUTREACH</span>
+              <button type="button" class="cw-mini-copy" data-copy-target="script-reason">
+                <span class="material-symbols-outlined text-[14px]">content_copy</span>
+                <span>Copy</span>
+              </button>
+            </div>
+            <div id="script-reason" class="cw-block-box">
+              Loading reason for outreach…
+            </div>
+          </div>
+
+          <!-- 3. QUESTIONS TO ASK -->
+          <div class="cw-script-block">
+            <div class="cw-block-top">
+              <span class="cw-block-title">QUESTIONS TO ASK</span>
+              <button type="button" class="cw-mini-copy" data-copy-target="script-questions-list">
+                <span class="material-symbols-outlined text-[14px]">content_copy</span>
+                <span>Copy</span>
+              </button>
+            </div>
+            <div class="cw-block-box">
+              <ul id="script-questions-list" class="cw-questions-list">
+                <li>How have you been feeling since your recent healthcare visit?</li>
+                <li>Have you had any trouble getting your prescribed medications?</li>
+                <li>Are you experiencing any transportation or scheduling barriers?</li>
+                <li>What support would be most helpful from our care team right now?</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- 4. SUGGESTED NEXT STEP -->
+          <div class="cw-script-block">
+            <div class="cw-block-top">
+              <span class="cw-block-title">SUGGESTED NEXT STEP</span>
+              <button type="button" class="cw-mini-copy" data-copy-target="script-next-step">
+                <span class="material-symbols-outlined text-[14px]">content_copy</span>
+                <span>Copy</span>
+              </button>
+            </div>
+            <div id="script-next-step" class="cw-block-box">
+              Loading suggested next step…
+            </div>
+          </div>
+
+          <!-- 5. CLOSING -->
+          <div class="cw-script-block">
+            <div class="cw-block-top">
+              <span class="cw-block-title">CLOSING</span>
+              <button type="button" class="cw-mini-copy" data-copy-target="script-closing">
+                <span class="material-symbols-outlined text-[14px]">content_copy</span>
+                <span>Copy</span>
+              </button>
+            </div>
+            <div id="script-closing" class="cw-block-box">
+              Thank you so much for your time today. Please know that our care team is here to support you whenever questions arise. Have a wonderful day!
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Initial Placeholder State (shown before generation) -->
+      <div id="ai-script-placeholder" class="bg-[#f8fafc] border border-dashed border-[#cbd5e1] rounded-lg p-6 text-center mt-5">
+        <p class="text-xs text-[#64748b] leading-relaxed">
+          Click <strong class="text-[#0284c7]">"Generate AI Call Guide"</strong> above to synthesize a live, real-time conversational script from the member's clinical profile using Gemini AI.
+        </p>
+      </div>
+
+      <!-- Fallback Call Script Section (Always visible below AI guide) -->
+      <div class="cw-fallback-section">
+        <div class="cw-fallback-header">
+          <svg class="w-4 h-4 text-[#475569]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <line x1="16" x2="8" y1="13" y2="13"/>
+            <line x1="16" x2="8" y1="17" y2="17"/>
+            <line x1="10" x2="8" y1="9" y2="9"/>
+          </svg>
+          <span>FALLBACK CALL SCRIPT</span>
+        </div>
+        <div id="fallback-script-box" class="cw-fallback-box">
+          Loading rule-based fallback script…
+        </div>
+        <div class="cw-fallback-caption">
+          * Clinical fallback script provided by the ML pipeline rule engine.
+        </div>
+      </div>
+    </div>
+
+    <!-- CARE PLAN RECOMMENDED NEXT ACTIONS CHECKLIST (HORIZONTALLY ALIGNED) -->
+    <div class="bg-white rounded-xl border border-[#e2e8f0] p-6 shadow-xs">
+      <h3 class="text-sm font-bold text-[#0f172a] uppercase tracking-wider mb-3 flex items-center gap-2">
+        <span class="material-symbols-outlined text-[18px] text-[#00685f]">task_alt</span>
+        <span>Recommended Next Actions Checklist</span>
+      </h3>
+      <div id="guide-action-items" class="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <!-- Dynamic check items rendered horizontally -->
+      </div>
+    </div>
+
+    <!-- CALL OUTCOME & OUTREACH STATUS SELECTION (SYNCS ACROSS ALL VIEWS) -->
+    <div class="bg-white rounded-xl border border-[#e2e8f0] p-6 shadow-xs">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4 pb-3 border-b border-[#f1f5f9]">
+        <div>
+          <h3 class="text-sm font-bold text-[#0f172a] uppercase tracking-wider flex items-center gap-2">
+            <span class="material-symbols-outlined text-[18px] text-[#00685f]">assignment_turned_in</span>
+            <span>Call Outcome & Outreach Status</span>
+          </h3>
+          <p class="text-xs text-[#64748b] mt-0.5">Select the outreach outcome to update the member's operational queue status across all views.</p>
+        </div>
+        <div id="status-sync-toast" class="hidden text-xs text-[#059669] font-bold bg-[#ecfdf5] border border-[#a7f3d0] px-3 py-1 rounded-md flex items-center gap-1.5 transition-all">
+          <span class="material-symbols-outlined text-[15px]">check_circle</span>
+          <span id="status-sync-msg">Status Updated</span>
+        </div>
+      </div>
+
+      <!-- Interactive 5-Option Status Pills -->
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3" id="status-button-group">
+        <!-- 1. Not Contacted (Pending) -->
+        <button type="button" data-status-val="Pending" class="status-pill-btn flex flex-col items-center justify-center p-3.5 rounded-xl border-2 border-[#cbd5e1] bg-[#f8fafc] hover:bg-white text-[#475569] transition-all cursor-pointer text-center group">
+          <span class="material-symbols-outlined text-[22px] mb-1 text-[#64748b] group-hover:scale-110 transition-transform">phone_disabled</span>
+          <span class="text-xs font-bold text-[#1e293b]">Not Contacted</span>
+          <span class="text-[10px] text-[#64748b] mt-0.5">Pending</span>
+        </button>
+
+        <!-- 2. Contacted -->
+        <button type="button" data-status-val="Contacted" class="status-pill-btn flex flex-col items-center justify-center p-3.5 rounded-xl border-2 border-[#cbd5e1] bg-[#f8fafc] hover:bg-white text-[#15803d] transition-all cursor-pointer text-center group">
+          <span class="material-symbols-outlined text-[22px] mb-1 text-[#16a34a] group-hover:scale-110 transition-transform">phone_in_talk</span>
+          <span class="text-xs font-bold text-[#15803d]">Contacted</span>
+          <span class="text-[10px] text-[#16a34a] mt-0.5">Member Reached</span>
+        </button>
+
+        <!-- 3. Follow-up Required -->
+        <button type="button" data-status-val="Follow-up" class="status-pill-btn flex flex-col items-center justify-center p-3.5 rounded-xl border-2 border-[#cbd5e1] bg-[#f8fafc] hover:bg-white text-[#c2410c] transition-all cursor-pointer text-center group">
+          <span class="material-symbols-outlined text-[22px] mb-1 text-[#ea580c] group-hover:scale-110 transition-transform">schedule</span>
+          <span class="text-xs font-bold text-[#c2410c]">Follow-up</span>
+          <span class="text-[10px] text-[#ea580c] mt-0.5">Callback Needed</span>
+        </button>
+
+        <!-- 4. In Progress -->
+        <button type="button" data-status-val="In Progress" class="status-pill-btn flex flex-col items-center justify-center p-3.5 rounded-xl border-2 border-[#cbd5e1] bg-[#f8fafc] hover:bg-white text-[#1d4ed8] transition-all cursor-pointer text-center group">
+          <span class="material-symbols-outlined text-[22px] mb-1 text-[#2563eb] group-hover:scale-110 transition-transform">pending</span>
+          <span class="text-xs font-bold text-[#1d4ed8]">In Progress</span>
+          <span class="text-[10px] text-[#2563eb] mt-0.5">Active Outreach</span>
+        </button>
+
+        <!-- 5. Completed -->
+        <button type="button" data-status-val="Completed" class="status-pill-btn flex flex-col items-center justify-center p-3.5 rounded-xl border-2 border-[#cbd5e1] bg-[#f8fafc] hover:bg-white text-[#047857] transition-all cursor-pointer text-center group">
+          <span class="material-symbols-outlined text-[22px] mb-1 text-[#059669] group-hover:scale-110 transition-transform">check_circle</span>
+          <span class="text-xs font-bold text-[#047857]">Completed</span>
+          <span class="text-[10px] text-[#059669] mt-0.5">Outreach Closed</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- ACTION AREA: CALL DOCUMENTATION & NOTES -->
+    <div class="bg-white rounded-xl border border-[#e2e8f0] p-6 shadow-xs">
+      <h3 class="text-sm font-bold text-[#0f172a] uppercase tracking-wider mb-3">Call Documentation & Notes</h3>
+      <textarea id="draft-notes" aria-label="Draft call notes" rows="3" class="w-full p-3 border border-[#cbd5e1] rounded-lg text-sm text-[#0f172a] focus:ring-1 focus:ring-[#00685f] focus:border-[#00685f] outline-none placeholder-[#94a3b8]" placeholder="Record member responses, clinical notes, and agreed next steps..."></textarea>
+      <div class="mt-4 flex flex-wrap justify-end gap-3">
+        <button id="save-draft-notes" type="button" class="px-4 py-2 bg-white border border-[#cbd5e1] hover:bg-[#f8fafc] text-[#334155] rounded-lg font-semibold text-xs transition-colors">
+          Save Draft Notes
+        </button>
+        <button id="complete-call-log" type="button" class="px-5 py-2 bg-[#00685f] hover:bg-[#005049] text-white rounded-lg font-semibold text-xs shadow-xs transition-colors">
+          Complete Call Log
+        </button>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<script src="/static/sidebar.js" defer></script>
+<script>
+const API_BASE = '';
+const memberId = new URLSearchParams(location.search).get('id');
+let currentMemberData = null;
+
+function formatPriorityScore(score) {
+  let num = Number(score || 0);
+  if (num > 0 && num <= 1.0) num = num * 100;
+  return num.toFixed(2);
+}
+
+function renderMemberSidebar(data) {
+  currentMemberData = data;
+  const m = data.member;
+  const score = Number(data.priority?.score || 0);
+  
+  document.getElementById('guide-member-name').textContent = m.member_name || 'Member';
+  document.getElementById('guide-member-id').textContent = `ID: #${m.member_id}`;
+  document.getElementById('guide-member-initials').textContent = (m.member_name || 'M').split(/\s+/).map(p=>p[0]).join('').slice(0,2).toUpperCase();
+  
+  // Conditions
+  const conditions = [];
+  if (m.diabetes) conditions.push('Diabetes');
+  if (m.hypertension) conditions.push('Hypertension');
+  if (m.heart_disease) conditions.push('Heart Disease');
+  document.getElementById('guide-member-conditions').innerHTML = `<span class="material-symbols-outlined text-[14px]">monitor_heart</span><span>${conditions.length ? conditions.join(', ') : 'High-Risk Member'}</span>`;
+
+  // Utilization
+  const u = data.utilization || {};
+  const utParts = [];
+  if (u.er_visits_30d) utParts.push(`${u.er_visits_30d} ER visit(s)`);
+  if (u.hospitalizations_30d) utParts.push(`${u.hospitalizations_30d} hospitalization(s)`);
+  document.getElementById('guide-member-utilization').textContent = utParts.length ? utParts.join(' & ') + ' in last 30d' : 'Active care management monitoring';
+
+  // Risk Score
+  const formattedScore = formatPriorityScore(score);
+  document.getElementById('guide-risk-score').textContent = `${formattedScore}/100`;
+  document.getElementById('guide-risk-bar').style.width = `${Math.min(100, Math.max(0, formattedScore))}%`;
+
+  // Goal
+  const nextAction = data.next_best_action || 'Review care management plan and follow-up needs.';
+  document.getElementById('guide-goal').textContent = nextAction;
+
+  // Fallback Box
+  const fallback = `Hello ${m.member_name}, this is a care manager following up from your care management team. I am reaching out to check on how you are feeling and help coordinate your ${nextAction.toLowerCase()}. Are there any barriers or questions regarding your current care plan or medications? We are here to support your next steps.`;
+  document.getElementById('fallback-script-box').textContent = fallback;
+
+  // Action Items Checklist (Rendered horizontally in a 3-column grid)
+  const actionsList = document.getElementById('guide-action-items');
+  if (actionsList) {
+    const actions = [
+      nextAction,
+      "Confirm transportation and scheduling arrangements.",
+      "Review current prescriptions and refill status."
+    ];
+    actionsList.innerHTML = actions.map(act => `
+      <label class="flex items-center gap-3 p-3 bg-[#f8fafc] rounded-lg border border-[#e2e8f0] hover:bg-[#f1f5f9] transition-colors cursor-pointer text-xs text-[#1e293b]">
+        <input type="checkbox" class="form-checkbox h-4 w-4 text-[#00685f] rounded border-[#cbd5e1] focus:ring-[#00685f] cursor-pointer shrink-0">
+        <span class="font-medium leading-snug">${act}</span>
+      </label>
+    `).join('');
+  }
+}
+
+function renderAIGuide(guide) {
+  const mName = currentMemberData?.member?.member_name || 'Member';
+  const action = currentMemberData?.next_best_action || 'recommended care follow-up';
+
+  const opening = guide.opening_script || guide.opening || `Hello ${mName}, this is your care manager calling from your care team.`;
+  const reason = guide.key_discussion_points?.[0] || guide.discussion_points?.[0] || `I'm reaching out today to check in on how you're feeling and assist with: ${action}.`;
+  const questions = (guide.suggested_questions && guide.suggested_questions.length)
+    ? guide.suggested_questions
+    : [
+        "How have you been feeling since your recent healthcare visit?",
+        "Do you have all the medications you need, or are there refills pending?",
+        "Are you experiencing any transportation, financial, or scheduling barriers?",
+        "What support would be most helpful from our care team right now?"
+      ];
+  const nextStep = (guide.recommended_actions && guide.recommended_actions[0]) || guide.next_actions?.[0] || action || "Schedule a follow-up consultation with your primary care provider.";
+  const closing = "Thank you so much for your time today. Please know that our care team is here to support you whenever questions arise. Have a wonderful day!";
+
+  document.getElementById('script-opening').textContent = opening;
+  document.getElementById('script-reason').textContent = reason;
+  
+  const qList = document.getElementById('script-questions-list');
+  qList.innerHTML = questions.map(q => `<li>${q}</li>`).join('');
+  
+  document.getElementById('script-next-step').textContent = nextStep;
+  document.getElementById('script-closing').textContent = closing;
+
+  // Show the AI script panel and hide placeholder
+  document.getElementById('ai-script-panel').style.display = 'block';
+  document.getElementById('ai-script-placeholder').style.display = 'none';
+}
+
+async function generateGuide() {
+  if (!memberId) return;
+  const btn = document.getElementById('btn-generate-ai');
+  const label = document.getElementById('label-generate-ai');
+  btn.disabled = true;
+  label.textContent = 'Synthesizing Call Guide...';
+  btn.classList.add('opacity-80');
+
+  try {
+    const res = await fetch(`${API_BASE}/api/members/${encodeURIComponent(memberId)}/call-guide`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ include_questions: true }),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    renderAIGuide(data);
+  } catch (err) {
+    console.warn('AI call guide fetch failed; applying structured clinical synthesis', err);
+    renderAIGuide({
+      source: 'fallback',
+      opening: `Hello ${currentMemberData?.member?.member_name || 'Member'}, this is your care manager calling from your care team.`,
+      discussion_points: [`I'm reaching out today to check in on how you're feeling and assist with: ${currentMemberData?.next_best_action || 'your care management plan'}.`],
+      suggested_questions: [
+        "How are things going with your health and daily routine since your recent visit?",
+        "Have you had any trouble obtaining your prescribed medications?",
+        "Are there any barriers like transportation or scheduling that we can help you with?",
+        "What questions can I address for you before your next appointment?"
+      ],
+      recommended_actions: [currentMemberData?.next_best_action || 'Coordinate follow-up with your primary care team.']
+    });
+  } finally {
+    btn.disabled = false;
+    label.textContent = 'Generate AI Call Guide';
+    btn.classList.remove('opacity-80');
+  }
+}
+
+async function loadPage() {
+  if (!memberId) {
+    location.href = '/outreach';
+    return;
+  }
+  try {
+    const res = await fetch(`${API_BASE}/api/members/${encodeURIComponent(memberId)}`);
+    if (!res.ok) throw new Error('Member fetch failed');
+    const data = await res.json();
+    renderMemberSidebar(data);
+  } catch (e) {
+    console.error('Failed to load member', e);
+  }
+}
+
+// Copy functionality
+function setupCopyButtons() {
+  document.getElementById('btn-copy-all')?.addEventListener('click', () => {
+    const opening = document.getElementById('script-opening').innerText;
+    const reason = document.getElementById('script-reason').innerText;
+    const questions = [...document.querySelectorAll('#script-questions-list li')].map((li, i) => `${i+1}. ${li.innerText}`).join('\n');
+    const nextStep = document.getElementById('script-next-step').innerText;
+    const closing = document.getElementById('script-closing').innerText;
+
+    const fullScript = `OPENING:\n${opening}\n\nREASON FOR OUTREACH:\n${reason}\n\nQUESTIONS TO ASK:\n${questions}\n\nSUGGESTED NEXT STEP:\n${nextStep}\n\nCLOSING:\n${closing}`;
+    navigator.clipboard.writeText(fullScript);
+
+    const label = document.getElementById('label-copy-all');
+    label.textContent = 'Copied!';
+    setTimeout(() => { label.textContent = 'Copy All'; }, 2000);
+  });
+
+  document.querySelectorAll('[data-copy-target]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const targetId = btn.dataset.copyTarget;
+      const el = document.getElementById(targetId);
+      if (el) {
+        navigator.clipboard.writeText(el.innerText);
+        const span = btn.querySelector('span:last-child');
+        if (span) {
+          const orig = span.textContent;
+          span.textContent = 'Copied!';
+          setTimeout(() => { span.textContent = orig; }, 1500);
+        }
+      }
+    });
+  });
+
+  document.getElementById('btn-generate-ai')?.addEventListener('click', generateGuide);
+}
+
+// Local state for selected call disposition
+let selectedOutcome = 'Completed';
+
+// Status Pill Active Highlighter
+function highlightStatusButton(status) {
+  selectedOutcome = (status || 'Completed').trim();
+  document.querySelectorAll('.status-pill-btn').forEach(btn => {
+    const btnVal = btn.dataset.statusVal;
+    if (btnVal === selectedOutcome) {
+      btn.classList.add('ring-2', 'shadow-sm');
+      if (btnVal === 'Pending') {
+        btn.className = 'status-pill-btn flex flex-col items-center justify-center p-3.5 rounded-xl border-2 border-[#475569] bg-[#f1f5f9] text-[#1e293b] ring-2 ring-[#94a3b8]/40 shadow-sm transition-all cursor-pointer text-center';
+      } else if (btnVal === 'Contacted') {
+        btn.className = 'status-pill-btn flex flex-col items-center justify-center p-3.5 rounded-xl border-2 border-[#16a34a] bg-[#f0fdf4] text-[#15803d] ring-2 ring-[#86efac]/50 shadow-sm transition-all cursor-pointer text-center';
+      } else if (btnVal === 'Follow-up') {
+        btn.className = 'status-pill-btn flex flex-col items-center justify-center p-3.5 rounded-xl border-2 border-[#ea580c] bg-[#fff7ed] text-[#c2410c] ring-2 ring-[#fdba74]/50 shadow-sm transition-all cursor-pointer text-center';
+      } else if (btnVal === 'In Progress') {
+        btn.className = 'status-pill-btn flex flex-col items-center justify-center p-3.5 rounded-xl border-2 border-[#2563eb] bg-[#eff6ff] text-[#1d4ed8] ring-2 ring-[#93c5fd]/50 shadow-sm transition-all cursor-pointer text-center';
+      } else if (btnVal === 'Completed') {
+        btn.className = 'status-pill-btn flex flex-col items-center justify-center p-3.5 rounded-xl border-2 border-[#059669] bg-[#ecfdf5] text-[#047857] ring-2 ring-[#6ee7b7]/50 shadow-sm transition-all cursor-pointer text-center';
+      }
+    } else {
+      btn.className = 'status-pill-btn flex flex-col items-center justify-center p-3.5 rounded-xl border-2 border-[#cbd5e1] bg-[#f8fafc] hover:bg-white text-[#64748b] transition-all cursor-pointer text-center group';
+    }
+  });
+
+  const syncToast = document.getElementById('status-sync-toast');
+  const syncMsg = document.getElementById('status-sync-msg');
+  if (syncToast && syncMsg) {
+    syncMsg.textContent = `Selected Outcome: ${selectedOutcome} (Ready to complete)`;
+    syncToast.classList.remove('hidden');
+  }
+}
+
+function showStatusToast(status) {
+  const toast = document.getElementById('status-sync-toast');
+  const msg = document.getElementById('status-sync-msg');
+  if (toast && msg) {
+    msg.textContent = `Status Committed: ${status} (Synced across queues)`;
+    toast.classList.remove('hidden');
+    setTimeout(() => { toast.classList.add('hidden'); }, 3500);
+  }
+}
+
+function setupStatusButtons() {
+  document.querySelectorAll('.status-pill-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const val = btn.dataset.statusVal;
+      if (val) {
+        highlightStatusButton(val);
+      }
+    });
+  });
+}
+
+// Notes & Log Completion
+function setupNotesAndLog() {
+  const notesKey = `carewise.call-guide.draft.${memberId}`;
+  const notesEl = document.getElementById('draft-notes');
+  if (notesEl && memberId) notesEl.value = localStorage.getItem(notesKey) || '';
+
+  document.getElementById('save-draft-notes')?.addEventListener('click', () => {
+    if (!memberId) return;
+    localStorage.setItem(notesKey, notesEl?.value || '');
+    alert('Draft notes saved successfully.');
+  });
+
+  document.getElementById('complete-call-log')?.addEventListener('click', async (e) => {
+    if (!memberId || e.currentTarget.disabled) return;
+    const completeBtn = e.currentTarget;
+    completeBtn.disabled = true;
+    const origText = completeBtn.innerText;
+    completeBtn.innerText = 'Updating Status...';
+
+    try {
+      // 1. Commit selected outcome to backend
+      const targetStatus = selectedOutcome || 'Completed';
+      const res = await fetch(`${API_BASE}/api/members/${encodeURIComponent(memberId)}/outreach-status`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: targetStatus }),
+      });
+      if (!res.ok) throw new Error(`Status patch failed (${res.status})`);
+
+      // 2. Dispatch platform-wide sync event
+      window.dispatchEvent(new CustomEvent('carewise:status-updated'));
+      window.refreshSidebarCounts?.();
+
+      // 3. Update localStorage history for Member 360 view
+      const historyKey = `carewise.outreach-history.${memberId}`;
+      try {
+        const records = JSON.parse(localStorage.getItem(historyKey) || '[]');
+        records.unshift({
+          type: targetStatus.toLowerCase(),
+          timestamp: new Date().toISOString(),
+          status: targetStatus,
+          notes: notesEl?.value ? `Call Completed: ${notesEl.value}` : `Outreach call completed with status: ${targetStatus}`
+        });
+        localStorage.setItem(historyKey, JSON.stringify(records));
+      } catch(err){}
+
+      // 4. Clean up draft notes
+      localStorage.removeItem(notesKey);
+      showStatusToast(targetStatus);
+      alert(`Call log completed! Outreach status has been updated to "${targetStatus}" across all operational queues.`);
+    } catch (err) {
+      console.error('Failed to complete call log', err);
+      alert('Unable to complete call log and update status at this time.');
+    } finally {
+      completeBtn.disabled = false;
+      completeBtn.innerText = origText;
+    }
+  });
+}
+
+async function loadPage() {
+  if (!localStorage.getItem('carewise_token') || !localStorage.getItem('carewise_user')) {
+    window.location.replace('/login?redirect=' + encodeURIComponent(window.location.pathname + window.location.search));
+    return;
+  }
+  if (!memberId) {
+    location.href = '/outreach';
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API_BASE}/api/members/${encodeURIComponent(memberId)}`);
+    if (!res.ok) throw new Error('Member fetch failed');
+    const data = await res.json();
+    renderMemberSidebar(data);
+    
+    // Set initial selected outcome to member's current status or 'Completed'
+    const initialStatus = data.outreach_status || 'Pending';
+    highlightStatusButton(initialStatus);
+  } catch (e) {
+    console.error('Failed to load member', e);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  loadPage();
+  setupCopyButtons();
+  setupStatusButtons();
+  setupNotesAndLog();
+});
+</script>
+</body>
+</html>

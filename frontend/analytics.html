@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Care Management Outreach Prioritization Assistant - Population Health Analytics</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+                "colors": {
+                    "surface": "#fdfcff",
+                    "on-surface": "#1a1c1c",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-container-low": "#f2f4f3",
+                    "surface-container": "#ecefed",
+                    "surface-container-high": "#e6e9e7",
+                    "surface-container-highest": "#e0e3e1",
+                    "surface-variant": "#d3e4fe",
+                    "on-surface-variant": "#3d4947",
+                    "outline": "#6f7977",
+                    "outline-variant": "#bfc9c6",
+                    "primary": "#006a62",
+                    "on-primary": "#ffffff",
+                    "primary-container": "#76f8e4",
+                    "background": "#f8f9ff",
+                    "on-primary-container": "#00201d",
+                    "secondary": "#0284c7",
+                    "on-secondary": "#ffffff",
+                    "secondary-container": "#e0f2fe",
+                    "tertiary": "#4f46e5",
+                    "tertiary-container": "#e0e7ff",
+                    "error": "#ba1a1a",
+                    "error-container": "#ffdad6",
+                    "warning": "#d97706",
+                    "warning-container": "#fef3c7",
+                    "success": "#16a34a",
+                    "success-container": "#dcfce7"
+                },
+                "fontFamily": {
+                    "body-md": ["Inter", "sans-serif"]
+                }
+          }
+        }
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined[data-weight="fill"] {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .card-shadow {
+            box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04), 0 1px 3px rgba(15, 23, 42, 0.02);
+        }
+        body { overflow-x: hidden; font-family: 'Inter', sans-serif; }
+        main { padding: 28px; }
+        .mb-section-gap { margin-bottom: 24px; }
+        .gap-gutter { gap: 20px; }
+        .analytics-main-grid { column-gap: 20px; row-gap: 20px; }
+        .rounded-DEFAULT { border-radius: 0.5rem; }
+        
+        .bar-chart-container {
+            display: flex;
+            align-items: flex-end;
+            gap: 20px;
+            height: 240px;
+            padding: 16px 12px 0 24px;
+            overflow: visible;
+        }
+        .bar-chart-container > .group {
+            height: 100%;
+            min-width: 0;
+            display: flex;
+            flex: 1 1 0%;
+            flex-direction: column;
+            justify-content: flex-end;
+        }
+        .bar {
+            width: 100%;
+            min-height: 4px;
+            border-radius: 6px 6px 0 0;
+            transition: height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .analytics-card { min-width: 0; }
+        .condition-value { white-space: nowrap; font-variant-numeric: tabular-nums; }
+        .care-gap-filter.active { background: #e0f2fe; border-color: #0284c7; color: #0369a1; font-weight: 600; }
+        
+        @media (max-width: 1024px) {
+            .analytics-main-grid { grid-template-columns: 1fr; }
+            .analytics-main-grid > .col-span-12,
+            .analytics-main-grid > .col-span-7,
+            .analytics-main-grid > .col-span-6,
+            .analytics-main-grid > .col-span-5 { grid-column: span 12 / span 12; }
+        }
+        @media (max-width: 768px) {
+            header, main { margin-left: 0 !important; }
+            nav { display: none; }
+            main { padding: 16px; }
+        }
+        
+        .progress-track {
+            height: 8px;
+            background-color: #f1f5f9;
+            border-radius: 9999px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            border-radius: 9999px;
+            transition: width 0.4s ease;
+        }
+        
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            z-index: 50;
+            min-width: 210px;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.1);
+            padding: 4px 0;
+        }
+        .dropdown-menu.open { display: block; }
+        .dropdown-item {
+            display: block;
+            width: 100%;
+            text-align: left;
+            padding: 9px 16px;
+            font-size: 13px;
+            color: #1e293b;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        .dropdown-item:hover { background: #f8fafc; }
+        .dropdown-item.active { background: #e0f2fe; color: #0284c7; font-weight: 600; }
+        
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: #0f172a;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            z-index: 100;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.3s, transform 0.3s;
+            pointer-events: none;
+        }
+        .toast.show { opacity: 1; transform: translateY(0); }
+</style>
+</head>
+<body class="bg-[#f8fafc] text-on-surface min-h-screen">
+<!-- TopAppBar -->
+<header data-sidebar-main class="bg-surface border-b border-outline-variant docked full-width top-0 sticky z-40 flex justify-between items-center h-16 px-6 ml-[280px]">
+<div class="flex items-center gap-4">
+<span class="text-lg font-bold text-primary">Care Management Outreach Prioritization Assistant</span>
+<span class="text-on-surface-variant text-sm px-3 border-l border-outline-variant">Population Analytics</span>
+</div>
+<div class="flex items-center gap-6">
+<div class="relative hidden md:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px]">search</span>
+<input id="analytics-search" class="pl-10 pr-4 h-10 w-72 border border-outline-variant rounded-DEFAULT focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none bg-surface-container-lowest text-sm" placeholder="Search population analytics..." type="text"/>
+</div>
+</div>
+</header>
+
+<!-- SideNavBar -->
+<nav data-sidebar class="bg-surface-container-lowest fixed left-0 top-0 h-screen w-[280px] border-r border-outline-variant shadow-sm flex flex-col py-6 z-50">
+<div class="px-6 mb-8 flex items-center gap-3">
+<div class="cw-sidebar-logo w-10 h-10 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container shrink-0">
+<svg viewBox="0 0 40 40" width="22" height="22" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M20 7C17 1, 3 9, 3 18C3 26, 20 34, 20 34C20 34, 37 26, 37 18C37 9, 23 1, 20 7Z" fill="#008378"/>
+  <path d="M8 30C8 30, 12 36, 20 32C28 36, 32 30, 32 30" stroke="#008378" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M10 33C10 33, 13 38, 20 35C27 38, 30 33, 30 33" stroke="#f4fffc" stroke-width="1.5" stroke-linecap="round" opacity="0.9"/>
+  <g fill="#f4fffc">
+    <circle cx="13" cy="19" r="1.8"/>
+    <circle cx="20" cy="17" r="1.8"/>
+    <circle cx="27" cy="19" r="1.8"/>
+  </g>
+  <g stroke="#f4fffc" stroke-width="1.2" stroke-linecap="round">
+    <line x1="13" y1="20.8" x2="13" y2="24"/>
+    <line x1="20" y1="18.8" x2="20" y2="22"/>
+    <line x1="27" y1="20.8" x2="27" y2="24"/>
+  </g>
+</svg>
+</div>
+<h1 class="text-base font-bold text-primary leading-tight">Care Management Outreach Prioritization Assistant</h1>
+</div>
+<div class="flex-1 overflow-y-auto">
+<ul class="flex flex-col gap-1">
+<li>
+<a class="flex items-center gap-3 px-6 py-3 text-on-surface-variant hover:bg-surface-container transition-colors cursor-pointer active:opacity-80" href="/">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="text-xs font-semibold">Dashboard</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-6 py-3 text-on-surface-variant hover:bg-surface-container transition-colors cursor-pointer active:opacity-80" href="/outreach">
+<span class="material-symbols-outlined" data-icon="pending_actions">pending_actions</span>
+<span class="text-xs font-semibold">Outreach Queue</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-6 py-3 text-primary font-bold border-r-4 border-primary bg-surface-container-low cursor-pointer active:opacity-80 transition-all" href="/analytics">
+<span class="material-symbols-outlined" data-icon="analytics" data-weight="fill">analytics</span>
+<span class="text-xs font-semibold">Analytics</span>
+</a>
+</li>
+</ul>
+</div>
+</nav>
+
+<!-- Main Content Canvas -->
+<div id="analytics-loading" class="ml-[280px] p-8 bg-[#f8fafc] min-h-[calc(100vh-64px)] text-sm text-slate-600" role="status">
+    <div class="flex items-center gap-3">
+        <div class="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+        <span>Loading analytics...</span>
+    </div>
+</div>
+
+<main id="analytics-content" data-sidebar-main class="ml-[280px] p-8 bg-[#f8fafc] min-h-[calc(100vh-64px)]" hidden aria-busy="true">
+<!-- Page Header -->
+<div class="flex flex-wrap justify-between items-end gap-4 mb-6">
+<div>
+<h2 class="text-2xl font-bold text-slate-900 tracking-tight">Population Health Analytics</h2>
+<p class="text-xs text-slate-500 mt-1">Population-level prioritization insights and care gap operations</p>
+</div>
+<div class="flex flex-wrap items-center gap-3">
+<div class="relative">
+<button id="dataset-btn" class="flex items-center gap-2 px-3 py-1.5 border border-slate-300 bg-white rounded-md text-xs font-medium text-slate-700 hover:bg-slate-50 transition-colors shadow-xs">
+<span class="material-symbols-outlined text-[16px] text-slate-600">database</span>
+<span id="dataset-label">Primary Members Database</span>
+<span class="material-symbols-outlined text-[16px] text-slate-400">arrow_drop_down</span>
+</button>
+<div id="dataset-menu" class="dropdown-menu right-0">
+<button class="dropdown-item active" data-dataset="final_member_dataset.csv">Primary Members Database (SQL)</button>
+</div>
+</div>
+<div class="relative">
+<button id="cohort-btn" class="flex items-center gap-2 px-3 py-1.5 border border-slate-300 bg-white rounded-md text-xs font-medium text-slate-700 hover:bg-slate-50 transition-colors shadow-xs">
+<span class="material-symbols-outlined text-[16px] text-slate-600">filter_list</span>
+<span id="cohort-label">All Cohorts</span>
+<span class="material-symbols-outlined text-[16px] text-slate-400">arrow_drop_down</span>
+</button>
+<div id="cohort-menu" class="dropdown-menu right-0">
+<button class="dropdown-item active" data-cohort="all">All Cohorts</button>
+<button class="dropdown-item" data-cohort="high priority">High Priority</button>
+<button class="dropdown-item" data-cohort="medium priority">Medium Priority</button>
+<button class="dropdown-item" data-cohort="low priority">Low Priority</button>
+</div>
+</div>
+<button id="export-btn" class="flex items-center gap-1.5 px-3 py-1.5 bg-primary text-white rounded-md text-xs font-medium hover:bg-primary/90 transition-all shadow-xs">
+<span class="material-symbols-outlined text-[16px]">download</span>
+Export Population Report
+</button>
+</div>
+</div>
+
+<!-- Main Layout Grid -->
+<div class="analytics-main-grid grid grid-cols-12 gap-5">
+
+<!-- 1. Compact Unified KPI Summary Row (Spans 12) -->
+<div class="col-span-12 bg-white rounded-lg border border-slate-200/90 shadow-sm p-4 grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-0 divide-y md:divide-y-0 md:divide-x divide-slate-100">
+    <!-- Total Population -->
+    <div class="px-4 first:pl-2">
+        <div class="text-xs font-medium text-slate-500">Total Population</div>
+        <div class="text-2xl font-bold text-slate-900 mt-1" id="metric-total">--</div>
+        <div class="text-[11px] text-slate-400 mt-0.5">Active database records</div>
+    </div>
+    <!-- High Priority -->
+    <div class="px-4 pt-3 md:pt-0">
+        <div class="text-xs font-medium text-slate-500">High Priority Cohort</div>
+        <div class="text-2xl font-bold text-red-600 mt-1" id="metric-high">--</div>
+        <div class="text-[11px] text-slate-500 mt-0.5"><span id="metric-high-pct" class="font-semibold text-red-600">--%</span> of total cohort</div>
+    </div>
+    <!-- Identified Care Gaps -->
+    <div class="px-4 pt-3 md:pt-0">
+        <div class="text-xs font-medium text-slate-500">Open Care Gaps</div>
+        <div class="text-2xl font-bold text-slate-900 mt-1" id="metric-gaps">--</div>
+        <div class="text-[11px] text-slate-500 mt-0.5"><span id="metric-gaps-member-pct" class="font-medium text-slate-700">--</span> members impacted</div>
+    </div>
+    <!-- Outreach Engagement -->
+    <div class="px-4 pt-3 md:pt-0">
+        <div class="text-xs font-medium text-slate-500">Outreach Engagement Rate</div>
+        <div class="text-2xl font-bold text-slate-900 mt-1" id="metric-engagement">--%</div>
+        <div class="text-[11px] text-slate-500 mt-0.5"><span id="metric-completed-count" class="font-medium text-slate-700">--</span> completed contacts</div>
+    </div>
+</div>
+
+<!-- 2. Priority Distribution (6 cols) -->
+<div class="analytics-card col-span-12 lg:col-span-6 bg-white rounded-lg border border-slate-200/90 shadow-sm flex flex-col">
+    <div class="p-5 border-b border-slate-100 flex justify-between items-center">
+        <div>
+            <h3 class="text-sm font-bold text-slate-900">Priority Distribution</h3>
+            <p class="text-xs text-slate-500">Workload allocation across clinical risk tiers</p>
+        </div>
+        <div class="bg-slate-50 border border-slate-200 text-slate-700 text-xs px-2.5 py-1 rounded font-medium">
+            Average Score: <span id="avg-prio-score" class="font-bold text-slate-900">--</span>
+        </div>
+    </div>
+    <div class="p-5 flex-1 flex flex-col justify-between">
+        <div class="space-y-4">
+            <div>
+                <div class="flex justify-between items-center text-xs mb-1.5">
+                    <span class="font-medium text-slate-700 flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-xs bg-[#dc2626]"></span> High Priority (Score &ge; 60)</span>
+                    <span class="font-semibold text-slate-900"><span id="prio-high-val">--</span> (<span id="prio-high-pct">--%</span>)</span>
+                </div>
+                <div class="progress-track bg-slate-100 h-2 rounded"><div class="progress-fill bg-[#dc2626] h-full rounded" id="prio-high-bar" style="width: 0%"></div></div>
+            </div>
+            <div>
+                <div class="flex justify-between items-center text-xs mb-1.5">
+                    <span class="font-medium text-slate-700 flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-xs bg-[#d97706]"></span> Medium Priority (Score 35&ndash;59)</span>
+                    <span class="font-semibold text-slate-900"><span id="prio-med-val">--</span> (<span id="prio-med-pct">--%</span>)</span>
+                </div>
+                <div class="progress-track bg-slate-100 h-2 rounded"><div class="progress-fill bg-[#d97706] h-full rounded" id="prio-med-bar" style="width: 0%"></div></div>
+            </div>
+            <div>
+                <div class="flex justify-between items-center text-xs mb-1.5">
+                    <span class="font-medium text-slate-700 flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-xs bg-[#059669]"></span> Low Priority (Score &lt; 35)</span>
+                    <span class="font-semibold text-slate-900"><span id="prio-low-val">--</span> (<span id="prio-low-pct">--%</span>)</span>
+                </div>
+                <div class="progress-track bg-slate-100 h-2 rounded"><div class="progress-fill bg-[#059669] h-full rounded" id="prio-low-bar" style="width: 0%"></div></div>
+            </div>
+        </div>
+
+        <div class="bg-slate-50 border border-slate-200 rounded p-3 mt-5 text-[11px] text-slate-600 leading-relaxed">
+            <span class="font-semibold text-slate-800">Note:</span> Prioritization combines acute hospital events, open care gaps, and clinical disease complexity.
+        </div>
+    </div>
+</div>
+
+<!-- 3. Chronic Disease Prevalence (6 cols) -->
+<div class="analytics-card col-span-12 lg:col-span-6 bg-white rounded-lg border border-slate-200/90 shadow-sm flex flex-col">
+    <div class="p-5 border-b border-slate-100 flex justify-between items-center">
+        <div>
+            <h3 class="text-sm font-bold text-slate-900">Chronic Disease Prevalence</h3>
+            <p class="text-xs text-slate-500">Identified diagnoses in clinical registry</p>
+        </div>
+        <span class="material-symbols-outlined text-slate-400 text-[18px]">ecg_heart</span>
+    </div>
+    <div class="p-5 flex-1 flex flex-col justify-between space-y-4">
+        <div class="space-y-4">
+            <div>
+                <div class="flex justify-between text-xs mb-1.5">
+                    <span class="font-medium text-slate-700">Hypertension</span>
+                    <span class="condition-value font-semibold text-slate-900" id="chronic-hypertension">--</span>
+                </div>
+                <div class="progress-track bg-slate-100 h-2 rounded"><div class="progress-fill bg-[#0284c7] h-full rounded" id="chronic-hypertension-bar" style="width: 0%"></div></div>
+            </div>
+            <div>
+                <div class="flex justify-between text-xs mb-1.5">
+                    <span class="font-medium text-slate-700">Type 2 Diabetes</span>
+                    <span class="condition-value font-semibold text-slate-900" id="chronic-diabetes">--</span>
+                </div>
+                <div class="progress-track bg-slate-100 h-2 rounded"><div class="progress-fill bg-[#0284c7] h-full rounded" id="chronic-diabetes-bar" style="width: 0%"></div></div>
+            </div>
+            <div>
+                <div class="flex justify-between text-xs mb-1.5">
+                    <span class="font-medium text-slate-700">Heart Disease</span>
+                    <span class="condition-value font-semibold text-slate-900" id="chronic-heart">--</span>
+                </div>
+                <div class="progress-track bg-slate-100 h-2 rounded"><div class="progress-fill bg-[#0284c7] h-full rounded" id="chronic-heart-bar" style="width: 0%"></div></div>
+            </div>
+        </div>
+        <div class="text-[11px] text-slate-400 pt-2 border-t border-slate-100">
+            Documented clinical diagnostic flags in active database cohort.
+        </div>
+    </div>
+</div>
+
+<!-- NEW 1. Priority Score Distribution (Spans 12) -->
+<div class="analytics-card col-span-12 bg-white rounded-lg border border-slate-200/90 shadow-sm flex flex-col">
+    <div class="p-5 border-b border-slate-100 flex flex-wrap justify-between items-center gap-3">
+        <div>
+            <h3 class="text-sm font-bold text-slate-900">Priority Score Distribution</h3>
+            <p class="text-xs text-slate-500">Distribution of calibrated priority risk scores across the member population</p>
+        </div>
+        <div class="flex items-center gap-3 text-xs text-slate-600">
+            <span class="bg-slate-50 border border-slate-200 px-2.5 py-1 rounded">Minimum: <strong id="score-stat-min" class="font-bold text-slate-900">--</strong></span>
+            <span class="bg-slate-50 border border-slate-200 px-2.5 py-1 rounded">Average: <strong id="score-stat-avg" class="font-bold text-slate-900">--</strong></span>
+            <span class="bg-slate-50 border border-slate-200 px-2.5 py-1 rounded">Maximum: <strong id="score-stat-max" class="font-bold text-slate-900">--</strong></span>
+        </div>
+    </div>
+    <div class="p-5">
+        <div class="flex items-end justify-between gap-2 h-44 pt-6 pb-2 px-3 border-b border-slate-200" id="score-histogram-bars">
+            <!-- Dynamic 10 vertical bars rendered by JS -->
+        </div>
+        <div class="grid grid-cols-10 gap-2 text-center text-[10px] text-slate-500 pt-2 font-medium">
+            <div>0–10</div>
+            <div>10–20</div>
+            <div>20–30</div>
+            <div>30–40</div>
+            <div>40–50</div>
+            <div>50–60</div>
+            <div>60–70</div>
+            <div>70–80</div>
+            <div>80–90</div>
+            <div>90–100</div>
+        </div>
+        <div class="flex justify-between items-center text-[11px] text-slate-400 mt-3 pt-2">
+            <span>X-Axis: Priority Score Range</span>
+            <span>Y-Axis: Number of Members</span>
+        </div>
+    </div>
+</div>
+
+<!-- NEW 2. Recommended Next Actions (6 cols) -->
+<div class="analytics-card col-span-12 lg:col-span-6 bg-white rounded-lg border border-slate-200/90 shadow-sm flex flex-col">
+    <div class="p-5 border-b border-slate-100">
+        <h3 class="text-sm font-bold text-slate-900">Recommended Next Actions</h3>
+        <p class="text-xs text-slate-500">Distribution of recommended care-management actions across the population.</p>
+    </div>
+    <div class="p-5 flex-1 flex flex-col justify-between">
+        <div class="space-y-3.5" id="recommended-actions-container">
+            <!-- Dynamic horizontal bars rendered by JS -->
+        </div>
+        <div class="text-[11px] text-slate-400 pt-3 mt-4 border-t border-slate-100">
+            Action recommendations derived from algorithmic clinical decision rules.
+        </div>
+    </div>
+</div>
+
+<!-- NEW 3. Common Factors Mentioned in Priority Explanations (6 cols) -->
+<div class="analytics-card col-span-12 lg:col-span-6 bg-white rounded-lg border border-slate-200/90 shadow-sm flex flex-col">
+    <div class="p-5 border-b border-slate-100">
+        <h3 class="text-sm font-bold text-slate-900">Common Factors Mentioned in Priority Explanations</h3>
+        <p class="text-xs text-slate-500">Common themes identified from member prioritization explanations.</p>
+    </div>
+    <div class="p-5 flex-1 flex flex-col justify-between">
+        <div class="space-y-3.5" id="explanation-factors-container">
+            <!-- Dynamic horizontal bars rendered by JS -->
+        </div>
+        <div class="bg-slate-50 border border-slate-200 rounded p-3 mt-4 text-[11px] text-slate-500 leading-relaxed">
+            Counts represent factors mentioned in priority explanations and are not causal effects or model feature-importance scores.
+        </div>
+    </div>
+</div>
+
+<!-- 4. Care Management Outreach Pipeline (Spans 12) -->
+<div class="analytics-card col-span-12 bg-white rounded-lg border border-slate-200/90 shadow-sm flex flex-col">
+    <div class="p-5 border-b border-slate-100 flex flex-wrap justify-between items-center gap-3">
+        <div>
+            <h3 class="text-sm font-bold text-slate-900">Care Management Outreach Pipeline</h3>
+            <p class="text-xs text-slate-500">Operational workflow status from live database records</p>
+        </div>
+        <div class="flex items-center gap-3 text-xs text-slate-600">
+            <span>Engaged: <strong id="pipeline-engaged-pct" class="font-bold text-slate-900">--%</strong></span>
+            <span class="border-l border-slate-200 pl-3">Completed: <strong id="pipeline-completed-pct" class="font-bold text-emerald-700">--%</strong></span>
+        </div>
+    </div>
+    <div class="p-5 flex-1 space-y-3.5">
+        <div>
+            <div class="flex justify-between text-xs mb-1">
+                <span class="font-medium text-slate-700 flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-xs bg-slate-400"></span> Pending Outreach</span>
+                <span class="font-semibold text-slate-900" id="status-pending-val">--</span>
+            </div>
+            <div class="progress-track bg-slate-100 h-2 rounded"><div class="progress-fill bg-slate-400 h-full rounded" id="status-pending-bar" style="width: 0%"></div></div>
+        </div>
+        <div>
+            <div class="flex justify-between text-xs mb-1">
+                <span class="font-medium text-slate-700 flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-xs bg-[#2563eb]"></span> In Progress</span>
+                <span class="font-semibold text-slate-900" id="status-inprogress-val">--</span>
+            </div>
+            <div class="progress-track bg-slate-100 h-2 rounded"><div class="progress-fill bg-[#2563eb] h-full rounded" id="status-inprogress-bar" style="width: 0%"></div></div>
+        </div>
+        <div>
+            <div class="flex justify-between text-xs mb-1">
+                <span class="font-medium text-slate-700 flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-xs bg-[#4f46e5]"></span> Contacted</span>
+                <span class="font-semibold text-slate-900" id="status-contacted-val">--</span>
+            </div>
+            <div class="progress-track bg-slate-100 h-2 rounded"><div class="progress-fill bg-[#4f46e5] h-full rounded" id="status-contacted-bar" style="width: 0%"></div></div>
+        </div>
+        <div>
+            <div class="flex justify-between text-xs mb-1">
+                <span class="font-medium text-slate-700 flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-xs bg-[#d97706]"></span> Follow-up Required</span>
+                <span class="font-semibold text-slate-900" id="status-followup-val">--</span>
+            </div>
+            <div class="progress-track bg-slate-100 h-2 rounded"><div class="progress-fill bg-[#d97706] h-full rounded" id="status-followup-bar" style="width: 0%"></div></div>
+        </div>
+        <div>
+            <div class="flex justify-between text-xs mb-1">
+                <span class="font-medium text-slate-700 flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-xs bg-[#059669]"></span> Completed Outreach</span>
+                <span class="font-semibold text-slate-900" id="status-completed-val">--</span>
+            </div>
+            <div class="progress-track bg-slate-100 h-2 rounded"><div class="progress-fill bg-[#059669] h-full rounded" id="status-completed-bar" style="width: 0%"></div></div>
+        </div>
+    </div>
+</div>
+
+<!-- 5. Care Gap Analysis & Quality Campaigns (Spans 12 Table) -->
+<div class="col-span-12 bg-white rounded-lg border border-slate-200/90 shadow-sm overflow-hidden">
+<div class="p-5 border-b border-slate-100 flex flex-wrap justify-between items-center gap-3">
+<div>
+<h3 class="text-sm font-bold text-slate-900">Care Gap Quality Measures</h3>
+<p class="text-xs text-slate-500">Identified clinical care gaps and outreach campaigns</p>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead class="bg-slate-50 text-[11px] font-semibold text-slate-500 uppercase border-b border-slate-200">
+<tr>
+<th class="py-3 px-5">Quality Measure</th>
+<th class="py-3 px-5">Impacted Volume</th>
+<th class="py-3 px-5">Cohort Prevalence</th>
+<th class="py-3 px-5 w-1/2">Compliance Progress</th>
+</tr>
+</thead>
+<tbody class="text-xs text-slate-800 divide-y divide-slate-100" id="care-gap-body">
+<tr class="hover:bg-slate-50/80 transition-colors" data-gap-row="true">
+<td class="py-3.5 px-5 font-semibold text-slate-900 flex items-center gap-2">
+    <span class="material-symbols-outlined text-slate-500 text-[18px]">medical_information</span>
+    Overdue Preventive Screening
+</td>
+<td class="py-3.5 px-5 font-bold text-slate-900" id="gap-screening-total">--</td>
+<td class="py-3.5 px-5 text-slate-600" id="gap-screening-open">--</td>
+<td class="py-3.5 px-5">
+<div class="flex h-2 bg-red-100 rounded overflow-hidden">
+<div class="bg-[#059669] h-full" id="gap-screening-closed-bar" style="width: 0%"></div>
+<div class="bg-[#dc2626] h-full" id="gap-screening-open-bar" style="width: 100%"></div>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-slate-50/80 transition-colors" data-gap-row="true">
+<td class="py-3.5 px-5 font-semibold text-slate-900 flex items-center gap-2">
+    <span class="material-symbols-outlined text-slate-500 text-[18px]">biotech</span>
+    Overdue Diagnostic Lab (HbA1c / Lipids)
+</td>
+<td class="py-3.5 px-5 font-bold text-slate-900" id="gap-lab-total">--</td>
+<td class="py-3.5 px-5 text-slate-600" id="gap-lab-open">--</td>
+<td class="py-3.5 px-5">
+<div class="flex h-2 bg-red-100 rounded overflow-hidden">
+<div class="bg-[#059669] h-full" id="gap-lab-closed-bar" style="width: 0%"></div>
+<div class="bg-[#dc2626] h-full" id="gap-lab-open-bar" style="width: 100%"></div>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-slate-50/80 transition-colors" data-gap-row="true">
+<td class="py-3.5 px-5 font-semibold text-slate-900 flex items-center gap-2">
+    <span class="material-symbols-outlined text-slate-500 text-[18px]">medication</span>
+    Medication Adherence Gap
+</td>
+<td class="py-3.5 px-5 font-bold text-slate-900" id="gap-med-total">--</td>
+<td class="py-3.5 px-5 text-slate-600" id="gap-med-open">--</td>
+<td class="py-3.5 px-5">
+<div class="flex h-2 bg-red-100 rounded overflow-hidden">
+<div class="bg-[#059669] h-full" id="gap-med-closed-bar" style="width: 0%"></div>
+<div class="bg-[#dc2626] h-full" id="gap-med-open-bar" style="width: 100%"></div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+</div>
+</main>
+
+<!-- Toast notification -->
+<div id="toast" class="toast"></div>
+
+<script>
+const API_BASE = '';
+let analyticsData = null;
+let currentCohort = 'all';
+
+function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3200);
+}
+
+function toggleDropdown(menuId) {
+    const menu = document.getElementById(menuId);
+    if (!menu) return;
+    const isOpen = menu.classList.contains('open');
+    document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.remove('open'));
+    if (!isOpen) menu.classList.add('open');
+}
+
+// Close dropdowns on outside click
+document.addEventListener('click', (e) => {
+    if (!e.target.closest('.relative')) {
+        document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.remove('open'));
+    }
+});
+
+// Dataset dropdown
+document.getElementById('dataset-btn').addEventListener('click', (e) => {
+    e.stopPropagation();
+    toggleDropdown('dataset-menu');
+});
+
+document.querySelectorAll('#dataset-menu .dropdown-item').forEach(item => {
+    item.addEventListener('click', () => {
+        document.querySelectorAll('#dataset-menu .dropdown-item').forEach(i => i.classList.remove('active'));
+        item.classList.add('active');
+        document.getElementById('dataset-label').textContent = item.textContent.trim();
+        document.getElementById('dataset-menu').classList.remove('open');
+        loadAnalytics();
+        showToast('Database queried: ' + item.dataset.dataset);
+    });
+});
+
+// Cohort dropdown
+document.getElementById('cohort-btn').addEventListener('click', (e) => {
+    e.stopPropagation();
+    toggleDropdown('cohort-menu');
+});
+
+document.querySelectorAll('#cohort-menu .dropdown-item').forEach(item => {
+    item.addEventListener('click', () => {
+        document.querySelectorAll('#cohort-menu .dropdown-item').forEach(i => i.classList.remove('active'));
+        item.classList.add('active');
+        const label = item.dataset.cohort === 'all' ? 'All Cohorts' : item.textContent.trim();
+        document.getElementById('cohort-label').textContent = label;
+        document.getElementById('cohort-menu').classList.remove('open');
+        currentCohort = item.dataset.cohort;
+        loadAnalytics();
+    });
+});
+
+// Export Report
+document.getElementById('export-btn').addEventListener('click', exportReport);
+
+function exportReport() {
+    if (!analyticsData) {
+        showToast('No data available.');
+        return;
+    }
+    const d = analyticsData;
+    const lines = [];
+    lines.push('Care Management Outreach Prioritization Assistant - Population Health Analytics Report');
+    lines.push('Generated: ' + new Date().toLocaleString());
+    lines.push('Scope: ' + (d.scope || 'Current Database'));
+    lines.push('Cohort: ' + (currentCohort === 'all' ? 'All Cohorts' : currentCohort));
+    lines.push('Total Members: ' + d.total_members);
+    lines.push('Average Risk Score: ' + (d.average_priority_score ?? 'N/A'));
+    lines.push('');
+    lines.push('Priority Stratification:');
+    lines.push('  High Priority: ' + (d.priority_distribution?.['High Priority'] ?? 0));
+    lines.push('  Medium Priority: ' + (d.priority_distribution?.['Medium Priority'] ?? 0));
+    lines.push('  Low Priority: ' + (d.priority_distribution?.['Low Priority'] ?? 0));
+    lines.push('');
+    if (d.priority_score) {
+        lines.push('Priority Score Distribution:');
+        lines.push('  Min: ' + (d.priority_score.min ?? 'N/A') + ' | Avg: ' + (d.priority_score.average ?? 'N/A') + ' | Max: ' + (d.priority_score.max ?? 'N/A'));
+        (d.priority_score.distribution || []).forEach(b => {
+            lines.push('  Score ' + b.range + ': ' + b.count + ' (' + b.percentage + '%)');
+        });
+        lines.push('');
+    }
+    if (d.recommended_actions && d.recommended_actions.length) {
+        lines.push('Recommended Next Actions:');
+        d.recommended_actions.forEach(a => {
+            lines.push('  ' + a.action + ': ' + a.count + ' (' + a.percentage + '%)');
+        });
+        lines.push('');
+    }
+    if (d.priority_explanation_factors && d.priority_explanation_factors.length) {
+        lines.push('Common Factors Mentioned in Priority Explanations:');
+        d.priority_explanation_factors.forEach(f => {
+            lines.push('  ' + f.factor + ': ' + f.count + ' (' + f.percentage + '%)');
+        });
+        lines.push('');
+    }
+    lines.push('Chronic Disease Burden:');
+    if (d.chronic_conditions) {
+        for (const [name, info] of Object.entries(d.chronic_conditions)) {
+            if (info && info.percentage != null) {
+                lines.push('  ' + name + ': ' + info.count + ' (' + info.percentage + '%)');
+            }
+        }
+    }
+    lines.push('');
+    lines.push('Care Gaps:');
+    lines.push('  Members with care gaps: ' + (d.care_gaps?.members_with_care_gaps ?? 0));
+    lines.push('  Total care gaps: ' + (d.care_gaps?.total_care_gaps ?? 0));
+    if (d.care_gaps?.categories) {
+        d.care_gaps.categories.forEach(c => {
+            lines.push('  ' + c.category + ': ' + c.total_identified + ' identified');
+        });
+    }
+    lines.push('');
+    lines.push('Outreach Pipeline:');
+    if (d.outreach_pipeline?.status_counts) {
+        for (const [s, cnt] of Object.entries(d.outreach_pipeline.status_counts)) {
+            lines.push('  ' + s + ': ' + cnt);
+        }
+        lines.push('  Engagement Rate: ' + d.outreach_pipeline.engagement_rate + '%');
+        lines.push('  Completion Rate: ' + d.outreach_pipeline.completion_rate + '%');
+    }
+    
+    const blob = new Blob([lines.join('\n')], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'population_health_analytics_report.txt';
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('Population report exported');
+}
+
+// Search functionality
+document.getElementById('analytics-search').addEventListener('input', function() {
+    const q = this.value.toLowerCase().trim();
+    if (!q) {
+        document.querySelectorAll('main .analytics-card, main table tr').forEach(el => el.style.display = '');
+        return;
+    }
+    document.querySelectorAll('main .analytics-card').forEach(el => {
+        const text = el.textContent.toLowerCase();
+        el.style.display = text.includes(q) ? '' : 'none';
+    });
+});
+
+async function loadAnalytics() {
+    try {
+        const url = currentCohort === 'all' ? `${API_BASE}/api/analytics` : `${API_BASE}/api/analytics?cohort=${encodeURIComponent(currentCohort)}`;
+        const response = await fetch(url);
+        if (!response.ok) throw new Error(`Analytics request failed (${response.status})`);
+        const d = await response.json();
+        analyticsData = d;
+        
+        const total = d.total_members || 0;
+        const setText = (id, val) => {
+            const el = document.getElementById(id);
+            if (el) el.textContent = val;
+        };
+        const setWidth = (id, pct) => {
+            const el = document.getElementById(id);
+            if (el) el.style.width = Math.min(100, Math.max(0, pct)) + '%';
+        };
+
+        // 1. Top KPI Summary Metrics (4 Cards)
+        const highCount = d.priority_distribution?.['High Priority'] ?? 0;
+        const medCount = d.priority_distribution?.['Medium Priority'] ?? 0;
+        const lowCount = d.priority_distribution?.['Low Priority'] ?? 0;
+        const highPct = total ? ((highCount / total) * 100).toFixed(1) : '0';
+        
+        setText('metric-total', total.toLocaleString());
+        setText('metric-high', highCount.toLocaleString());
+        setText('metric-high-pct', `${highPct}%`);
+        setText('metric-gaps', (d.care_gaps?.total_care_gaps ?? 0).toLocaleString());
+        setText('metric-gaps-member-pct', (d.care_gaps?.members_with_care_gaps ?? 0).toLocaleString());
+        
+        const engagementRate = d.outreach_pipeline?.engagement_rate ?? 0;
+        const completedCount = d.outreach_pipeline?.status_counts?.Completed ?? 0;
+        setText('metric-engagement', `${engagementRate}%`);
+        setText('metric-completed-count', completedCount.toLocaleString());
+
+        // 2. Priority & Risk Stratification
+        setText('avg-prio-score', d.average_priority_score != null ? String(d.average_priority_score) : '--');
+        setText('prio-high-val', highCount.toLocaleString());
+        setText('prio-high-pct', `${highPct}%`);
+        setWidth('prio-high-bar', total ? (highCount / total) * 100 : 0);
+        
+        const medPct = total ? ((medCount / total) * 100).toFixed(1) : '0';
+        setText('prio-med-val', medCount.toLocaleString());
+        setText('prio-med-pct', `${medPct}%`);
+        setWidth('prio-med-bar', total ? (medCount / total) * 100 : 0);
+        
+        const lowPct = total ? ((lowCount / total) * 100).toFixed(1) : '0';
+        setText('prio-low-val', lowCount.toLocaleString());
+        setText('prio-low-pct', `${lowPct}%`);
+        setWidth('prio-low-bar', total ? (lowCount / total) * 100 : 0);
+
+        // 3. Chronic Disease Prevalence
+        const cc = d.chronic_conditions || {};
+        const renderChronic = (textId, barId, key) => {
+            const info = cc[key];
+            if (info && info.percentage != null) {
+                setText(textId, `${Number(info.percentage).toFixed(1)}% (${Number(info.count).toLocaleString()})`);
+                setWidth(barId, info.percentage);
+            } else {
+                setText(textId, 'Not recorded');
+                setWidth(barId, 0);
+            }
+        };
+        renderChronic('chronic-hypertension', 'chronic-hypertension-bar', 'Hypertension');
+        renderChronic('chronic-diabetes', 'chronic-diabetes-bar', 'Type 2 Diabetes');
+        renderChronic('chronic-heart', 'chronic-heart-bar', 'Heart Disease');
+
+        // NEW 1. Priority Score Distribution Histogram & Stats
+        const ps = d.priority_score || {};
+        setText('score-stat-min', ps.min != null ? ps.min : '--');
+        setText('score-stat-avg', ps.average != null ? ps.average : (d.average_priority_score ?? '--'));
+        setText('score-stat-max', ps.max != null ? ps.max : '--');
+
+        const histContainer = document.getElementById('score-histogram-bars');
+        if (histContainer) {
+            histContainer.innerHTML = '';
+            const distribution = ps.distribution || [];
+            const maxHistCount = Math.max(...distribution.map(item => item.count), 1);
+            
+            distribution.forEach(item => {
+                const heightPct = Math.max(6, Math.round((item.count / maxHistCount) * 100));
+                const col = document.createElement('div');
+                col.className = 'flex-1 flex flex-col items-center justify-end h-full group relative';
+                col.innerHTML = `
+                    <div class="opacity-0 group-hover:opacity-100 transition-opacity absolute -top-7 bg-slate-900 text-white text-[10px] py-0.5 px-1.5 rounded whitespace-nowrap pointer-events-none z-10 font-medium">
+                        ${item.range}: ${item.count.toLocaleString()} (${item.percentage}%)
+                    </div>
+                    <div class="text-[10px] font-semibold text-slate-700 mb-1">${item.count >= 1000 ? (item.count/1000).toFixed(1)+'k' : item.count}</div>
+                    <div class="w-full bg-[#0d9488] hover:bg-[#0f766e] transition-colors rounded-t" style="height: ${heightPct}%;"></div>
+                `;
+                histContainer.appendChild(col);
+            });
+        }
+
+        // NEW 2. Recommended Next Actions
+        const recContainer = document.getElementById('recommended-actions-container');
+        if (recContainer) {
+            recContainer.innerHTML = '';
+            const actions = d.recommended_actions || [];
+            if (actions.length === 0) {
+                recContainer.innerHTML = '<div class="text-xs text-slate-500 text-center py-4">No data available.</div>';
+            } else {
+                actions.forEach(item => {
+                    const row = document.createElement('div');
+                    row.innerHTML = `
+                        <div class="flex justify-between text-xs mb-1.5 gap-2">
+                            <span class="font-medium text-slate-800 truncate" title="${item.action}">${item.action}</span>
+                            <span class="font-semibold text-slate-900 whitespace-nowrap">${item.count.toLocaleString()} (${item.percentage}%)</span>
+                        </div>
+                        <div class="progress-track bg-slate-100 h-2 rounded overflow-hidden">
+                            <div class="progress-fill bg-[#2563eb] h-full rounded" style="width: ${Math.min(100, Math.max(0, item.percentage))}%;"></div>
+                        </div>
+                    `;
+                    recContainer.appendChild(row);
+                });
+            }
+        }
+
+        // NEW 3. Common Factors Mentioned in Priority Explanations
+        const expContainer = document.getElementById('explanation-factors-container');
+        if (expContainer) {
+            expContainer.innerHTML = '';
+            const factors = d.priority_explanation_factors || [];
+            if (factors.length === 0) {
+                expContainer.innerHTML = '<div class="text-xs text-slate-500 text-center py-4">No data available.</div>';
+            } else {
+                factors.forEach(item => {
+                    const row = document.createElement('div');
+                    row.innerHTML = `
+                        <div class="flex justify-between text-xs mb-1.5 gap-2">
+                            <span class="font-medium text-slate-800 truncate" title="${item.factor}">${item.factor}</span>
+                            <span class="font-semibold text-slate-900 whitespace-nowrap">${item.count.toLocaleString()} (${item.percentage}%)</span>
+                        </div>
+                        <div class="progress-track bg-slate-100 h-2 rounded overflow-hidden">
+                            <div class="progress-fill bg-[#059669] h-full rounded" style="width: ${Math.min(100, Math.max(0, item.percentage))}%;"></div>
+                        </div>
+                    `;
+                    expContainer.appendChild(row);
+                });
+            }
+        }
+
+        // 4. Outreach Workflow Status Pipeline
+        const pipeline = d.outreach_pipeline || {};
+        const statusCounts = pipeline.status_counts || {};
+        const renderPipelineStatus = (valId, barId, key) => {
+            const cnt = statusCounts[key] || 0;
+            const pct = total ? ((cnt / total) * 100).toFixed(1) : '0';
+            setText(valId, `${cnt.toLocaleString()} (${pct}%)`);
+            setWidth(barId, total ? (cnt / total) * 100 : 0);
+        };
+        renderPipelineStatus('status-pending-val', 'status-pending-bar', 'Pending');
+        renderPipelineStatus('status-inprogress-val', 'status-inprogress-bar', 'In Progress');
+        renderPipelineStatus('status-contacted-val', 'status-contacted-bar', 'Contacted');
+        renderPipelineStatus('status-followup-val', 'status-followup-bar', 'Follow-up');
+        renderPipelineStatus('status-completed-val', 'status-completed-bar', 'Completed');
+        
+        setText('pipeline-engaged-pct', `${pipeline.engagement_rate ?? 0}%`);
+        setText('pipeline-completed-pct', `${pipeline.completion_rate ?? 0}%`);
+
+        // 5. Care Gap Breakdown Table
+        const catMap = {};
+        (d.care_gaps?.categories || []).forEach(c => { catMap[c.category] = c; });
+        const renderGapRow = (totalId, openId, closedBarId, openBarId, name) => {
+            const c = catMap[name];
+            if (c) {
+                setText(totalId, `${c.total_identified.toLocaleString()} members`);
+                setText(openId, `${c.percentage}% of cohort (${c.open_count.toLocaleString()} open)`);
+                setWidth(closedBarId, c.closed_count ? (c.closed_count / c.total_identified) * 100 : 0);
+                setWidth(openBarId, 100);
+            }
+        };
+        renderGapRow('gap-screening-total', 'gap-screening-open', 'gap-screening-closed-bar', 'gap-screening-open-bar', 'Overdue Screening');
+        renderGapRow('gap-lab-total', 'gap-lab-open', 'gap-lab-closed-bar', 'gap-lab-open-bar', 'Overdue Lab');
+        renderGapRow('gap-med-total', 'gap-med-open', 'gap-med-closed-bar', 'gap-med-open-bar', 'Medication Gap');
+
+        // Update active labels
+        if (d.dataset_name) {
+            document.getElementById('dataset-label').textContent = 'Primary Members Database';
+        }
+        if (currentCohort !== 'all') {
+            document.getElementById('cohort-label').textContent = currentCohort.charAt(0).toUpperCase() + currentCohort.slice(1);
+        } else {
+            document.getElementById('cohort-label').textContent = 'All Cohorts';
+        }
+
+    } catch (e) {
+        console.error('Analytics load failed', e);
+        showToast('Unable to load analytics.');
+    } finally {
+        const loadingEl = document.getElementById('analytics-loading');
+        if (loadingEl) {
+            loadingEl.hidden = true;
+            loadingEl.style.display = 'none';
+        }
+        const content = document.getElementById('analytics-content');
+        if (content) {
+            content.hidden = false;
+            content.style.display = 'block';
+            content.setAttribute('aria-busy', 'false');
+        }
+    }
+}
+
+if (document.readyState === 'complete' || document.readyState === 'interactive') {
+    setTimeout(loadAnalytics, 0);
+} else {
+    document.addEventListener('DOMContentLoaded', loadAnalytics);
+}
+
+// Safety fallback to guarantee analytics UI renders
+setTimeout(() => {
+    const loadingEl = document.getElementById('analytics-loading');
+    if (loadingEl && !loadingEl.hidden) {
+        loadingEl.hidden = true;
+        loadingEl.style.display = 'none';
+    }
+    const content = document.getElementById('analytics-content');
+    if (content && (content.hidden || content.style.display === 'none')) {
+        content.hidden = false;
+        content.style.display = 'block';
+        content.setAttribute('aria-busy', 'false');
+    }
+}, 1200);
+</script>
+<script src="/static/sidebar.js" defer></script>
+</body>
+</html>

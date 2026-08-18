@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Care Management Outreach Prioritization Assistant - Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-variant": "#d3e4fe",
+                        "on-surface-variant": "#3d4947",
+                        "background": "#f8f9ff",
+                        "on-primary-fixed": "#00201d",
+                        "surface": "#f8f9ff",
+                        "inverse-primary": "#6bd8cb",
+                        "surface-bright": "#f8f9ff",
+                        "surface-container-highest": "#d3e4fe",
+                        "surface-container-high": "#dce9ff",
+                        "primary": "#00685f",
+                        "secondary-container": "#39b8fd",
+                        "primary-fixed-dim": "#6bd8cb",
+                        "tertiary-fixed-dim": "#bec6e0",
+                        "tertiary-container": "#6c748b",
+                        "outline": "#6d7a77",
+                        "on-secondary-fixed": "#001e2f",
+                        "on-secondary-fixed-variant": "#004c6e",
+                        "inverse-on-surface": "#eaf1ff",
+                        "on-tertiary-container": "#fefcff",
+                        "on-primary-fixed-variant": "#005049",
+                        "secondary-fixed-dim": "#89ceff",
+                        "surface-container-low": "#eff4ff",
+                        "surface-container": "#e5eeff",
+                        "on-primary": "#ffffff",
+                        "on-primary-container": "#f4fffc",
+                        "on-tertiary-fixed": "#131b2e",
+                        "primary-fixed": "#89f5e7",
+                        "on-tertiary-fixed-variant": "#3f465c",
+                        "on-secondary": "#ffffff",
+                        "secondary-fixed": "#c9e6ff",
+                        "tertiary": "#545c72",
+                        "on-error": "#ffffff",
+                        "on-secondary-container": "#004666",
+                        "on-surface": "#0b1c30",
+                        "on-tertiary": "#ffffff",
+                        "primary-container": "#008378",
+                        "surface-dim": "#cbdbf5",
+                        "secondary": "#006591",
+                        "tertiary-fixed": "#dae2fd",
+                        "inverse-surface": "#213145",
+                        "error-container": "#ffdad6",
+                        "on-background": "#0b1c30",
+                        "on-error-container": "#93000a",
+                        "error": "#ba1a1a",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-tint": "#006a61",
+                        "outline-variant": "#bcc9c6"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "container-padding": "24px",
+                        "element-gap-sm": "8px",
+                        "section-gap": "32px",
+                        "gutter": "16px",
+                        "unit": "4px",
+                        "element-gap-md": "12px"
+                    },
+                    "fontFamily": {
+                        "display-lg": ["Inter"],
+                        "label-md": ["Inter"],
+                        "body-md": ["Inter"],
+                        "code-md": ["Inter"],
+                        "headline-sm": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "title-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "display-lg": ["36px", { "lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "label-md": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "code-md": ["13px", { "lineHeight": "18px", "fontWeight": "500" }],
+                        "headline-sm": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "body-sm": ["12px", { "lineHeight": "16px", "fontWeight": "400" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-lg": ["28px", { "lineHeight": "36px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "title-lg": ["18px", { "lineHeight": "24px", "fontWeight": "600" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8f9ff; }
+        .shadow-ambient { box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04); }
+        .shadow-modal { box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08); }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    </style>
+</head>
+<body class="bg-background text-on-background flex h-screen overflow-hidden">
+<!-- SideNavBar -->
+<nav data-sidebar class="hidden md:flex bg-surface-container-lowest fixed left-0 top-0 h-screen w-[280px] border-r border-outline-variant shadow-sm z-50 flex-col py-6">
+<div class="px-6 mb-8 flex items-center gap-3">
+<div class="cw-sidebar-logo w-10 h-10 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container shrink-0">
+<svg viewBox="0 0 40 40" width="22" height="22" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M20 7C17 1, 3 9, 3 18C3 26, 20 34, 20 34C20 34, 37 26, 37 18C37 9, 23 1, 20 7Z" fill="#008378"/>
+  <path d="M8 30C8 30, 12 36, 20 32C28 36, 32 30, 32 30" stroke="#008378" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M10 33C10 33, 13 38, 20 35C27 38, 30 33, 30 33" stroke="#f4fffc" stroke-width="1.5" stroke-linecap="round" opacity="0.9"/>
+  <g fill="#f4fffc">
+    <circle cx="13" cy="19" r="1.8"/>
+    <circle cx="20" cy="17" r="1.8"/>
+    <circle cx="27" cy="19" r="1.8"/>
+  </g>
+  <g stroke="#f4fffc" stroke-width="1.2" stroke-linecap="round">
+    <line x1="13" y1="20.8" x2="13" y2="24"/>
+    <line x1="20" y1="18.8" x2="20" y2="22"/>
+    <line x1="27" y1="20.8" x2="27" y2="24"/>
+  </g>
+</svg>
+</div>
+<h1 class="text-title-lg font-title-lg font-bold text-primary leading-tight">Care Management Outreach Prioritization Assistant</h1>
+</div>
+<div class="flex-1 px-2 space-y-1 overflow-y-auto">
+<a class="flex items-center gap-3 px-4 py-3 text-primary font-bold border-r-4 border-primary bg-surface-container-low cursor-pointer active:opacity-80 transition-all rounded-r-none" href="/">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="text-label-md font-label-md">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container transition-colors cursor-pointer active:opacity-80 rounded-r-lg" href="/outreach">
+<span class="material-symbols-outlined">pending_actions</span>
+<span class="text-label-md font-label-md">Outreach Queue</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container transition-colors cursor-pointer active:opacity-80 rounded-r-lg" href="/analytics">
+<span class="material-symbols-outlined">analytics</span>
+<span class="text-label-md font-label-md">Analytics</span>
+</a>
+</div>
+</nav>
+<!-- Main Content Wrapper -->
+<div data-sidebar-main class="flex-1 flex flex-col md:ml-[280px] h-screen overflow-hidden">
+<!-- TopAppBar -->
+<header class="bg-surface docked full-width top-0 sticky z-40 border-b border-outline-variant flex justify-between items-center h-16 px-6">
+<div class="flex items-center gap-4 flex-1 justify-between">
+<div class="flex items-center">
+<span class="text-title-lg md:text-headline-sm font-headline-sm font-bold text-primary">Care Management Outreach Prioritization Assistant</span>
+</div>
+<div class="hidden md:flex relative max-w-md w-full">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">search</span>
+<input id="dashboard-search" class="w-full h-10 pl-10 pr-4 bg-surface-container-lowest border border-outline-variant rounded-lg text-body-md font-body-md focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none text-on-surface placeholder:text-outline-variant" placeholder="Search members, conditions, or priority..." type="text"/>
+</div>
+</div>
+</header>
+<!-- Scrollable Canvas -->
+<div id="dashboard-loading" class="flex-1 p-container-padding bg-background text-body-md text-on-surface-variant" role="status">Loading dashboard…</div>
+<main id="dashboard-content" class="flex-1 overflow-y-auto p-container-padding bg-background" hidden aria-busy="true">
+<div class="max-w-7xl mx-auto space-y-6">
+<!-- Page Header -->
+<div>
+<h2 class="text-display-lg font-display-lg text-on-surface">Dashboard</h2>
+<p class="text-body-lg font-body-lg text-on-surface-variant mt-1">Care Management Outreach Prioritization Assistant</p>
+</div>
+<!-- Overview Stats Grid (4 Cards) -->
+<div id="overview-stats-grid" class="grid grid-cols-2 md:grid-cols-4 gap-element-gap-md">
+<div class="bg-surface-container-lowest p-4 rounded-xl border border-outline-variant shadow-ambient hover:shadow-modal transition-shadow group relative overflow-hidden">
+<div class="absolute top-0 left-0 w-1 h-full bg-primary opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<p class="text-label-md font-label-md text-on-surface-variant uppercase">Total Members</p>
+<p class="text-headline-lg font-headline-lg text-on-surface mt-2">--</p>
+</div>
+<div class="bg-surface-container-lowest p-4 rounded-xl border border-outline-variant shadow-ambient hover:shadow-modal transition-shadow group relative overflow-hidden">
+<div class="absolute top-0 left-0 w-1 h-full bg-error opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<p class="text-label-md font-label-md text-on-surface-variant uppercase">High Priority</p>
+<p class="text-headline-lg font-headline-lg text-error mt-2">--</p>
+</div>
+<div class="bg-surface-container-lowest p-4 rounded-xl border border-outline-variant shadow-ambient hover:shadow-modal transition-shadow group relative overflow-hidden">
+<div class="absolute top-0 left-0 w-1 h-full bg-secondary opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<p class="text-label-md font-label-md text-on-surface-variant uppercase">Medium Priority</p>
+<p class="text-headline-lg font-headline-lg text-on-surface mt-2">--</p>
+</div>
+<div class="bg-surface-container-lowest p-4 rounded-xl border border-outline-variant shadow-ambient hover:shadow-modal transition-shadow group relative overflow-hidden">
+<div class="absolute top-0 left-0 w-1 h-full bg-outline opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<p class="text-label-md font-label-md text-on-surface-variant uppercase">Low Priority</p>
+<p class="text-headline-lg font-headline-lg text-on-surface mt-2">--</p>
+</div>
+</div>
+<!-- Bento Grid Content -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-gutter">
+<!-- Population Summary / Key Insights Card -->
+<div class="col-span-1 md:col-span-12 bg-primary-container text-on-primary-container p-6 rounded-xl shadow-ambient flex flex-col sm:flex-row items-center gap-4 relative overflow-hidden">
+<div class="absolute -right-10 -top-10 w-32 h-32 bg-primary-fixed/20 rounded-full blur-2xl pointer-events-none"></div>
+<div class="w-12 h-12 rounded-full bg-on-primary-container/20 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-headline-md">lightbulb</span>
+</div>
+<div class="flex-1 min-w-0">
+    <h3 id="dashboard-insight-heading" class="text-headline-sm font-headline-sm font-bold">Population Summary</h3>
+    <p id="dashboard-insight-text" class="text-body-md font-body-md mt-1 opacity-90">Loading summary...</p>
+</div>
+<a href="/analytics" class="ml-auto mt-4 sm:mt-0 whitespace-nowrap bg-on-primary-container text-primary-container px-4 py-2 rounded-lg text-label-md font-label-md hover:bg-on-primary-container/90 transition-colors inline-block text-center">
+    View Analytics
+</a>
+</div>
+<!-- Priority Band Distribution Chart -->
+<div class="col-span-1 md:col-span-4 bg-surface-container-lowest rounded-xl border border-outline-variant shadow-ambient p-5 flex flex-col">
+<div class="border-b border-surface-container-high pb-3 mb-4 flex justify-between items-start">
+<div>
+<h3 class="text-headline-sm font-headline-sm text-on-surface">Priority Band Distribution</h3>
+<p class="text-body-sm font-body-sm text-on-surface-variant mt-0.5">Workload allocation across clinical risk cohorts</p>
+</div>
+<span class="material-symbols-outlined text-outline-variant shrink-0 mt-0.5">pie_chart</span>
+</div>
+<div class="flex-1 flex flex-col items-center justify-center relative">
+<!-- CSS Mock Donut Chart -->
+<div id="priority-donut" class="w-40 h-40 rounded-full relative flex items-center justify-center" style="background: #e5eeff;">
+<div class="absolute inset-0 m-auto w-24 h-24 bg-surface-container-lowest rounded-full flex flex-col items-center justify-center">
+<span class="text-headline-md font-headline-md text-on-surface">--</span>
+<span class="text-body-sm font-body-sm text-on-surface-variant">Total</span>
+</div>
+</div>
+<div id="priority-legend" class="w-full mt-6 space-y-2">
+<div class="flex justify-between items-center text-body-sm font-body-sm">
+<div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-error"></div> High (--)</div>
+<span class="text-on-surface-variant">--%</span>
+</div>
+<div class="flex justify-between items-center text-body-sm font-body-sm">
+<div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-secondary"></div> Medium (--)</div>
+<span class="text-on-surface-variant">--%</span>
+</div>
+<div class="flex justify-between items-center text-body-sm font-body-sm">
+<div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-primary"></div> Low (--)</div>
+<span class="text-on-surface-variant">--%</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Outreach Status Chart -->
+<div class="col-span-1 md:col-span-8 bg-surface-container-lowest rounded-xl border border-outline-variant shadow-ambient p-5 flex flex-col">
+<div class="border-b border-surface-container-high pb-3 mb-4 flex justify-between items-center">
+<h3 class="text-headline-sm font-headline-sm text-on-surface">Outreach Status (Weekly)</h3>
+<a href="/outreach" class="text-label-md font-label-md text-primary flex items-center gap-1 hover:underline">
+    Details <span class="material-symbols-outlined text-[16px]">chevron_right</span>
+</a>
+</div>
+<div class="flex-1 flex flex-col justify-end gap-6 pt-4">
+<!-- CSS Mock Bar Chart -->
+<div class="space-y-4">
+<div>
+<div class="flex justify-between text-body-sm font-body-sm mb-1 text-on-surface-variant">
+<span class="">Completed</span>
+<span class="font-bold text-on-surface">--</span>
+</div>
+<div class="w-full bg-surface-container h-2 rounded-full overflow-hidden">
+<div class="bg-primary h-full rounded-full" style="width: 75%"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between text-body-sm font-body-sm mb-1 text-on-surface-variant">
+<span class="">In Progress</span>
+<span class="font-bold text-on-surface">--</span>
+</div>
+<div class="w-full bg-surface-container h-2 rounded-full overflow-hidden">
+<div class="bg-secondary h-full rounded-full" style="width: 35%"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between text-body-sm font-body-sm mb-1 text-on-surface-variant">
+<span class="">Pending (High Priority)</span>
+<span class="font-bold text-error">--</span>
+</div>
+<div class="w-full bg-surface-container h-2 rounded-full overflow-hidden">
+<div class="bg-error h-full rounded-full" style="width: 15%"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Priority Band Distribution - Workload allocation across clinical risk cohorts -->
+<div class="col-span-1 md:col-span-12 bg-white rounded-xl border border-slate-200/90 shadow-ambient p-6">
+<!-- Header with Title, Subtitle, and Top-Right Legend -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+<div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-slate-700 text-[20px]">pie_chart</span>
+<h3 class="text-base font-bold text-slate-900">Priority Band Distribution</h3>
+</div>
+<p class="text-xs text-slate-500 mt-0.5">Workload allocation across clinical risk cohorts</p>
+</div>
+<div class="flex flex-wrap items-center gap-5 text-xs text-slate-600">
+<div class="flex items-center gap-1.5">
+<span class="w-2.5 h-2.5 rounded-xs bg-[#dc2626] shrink-0 inline-block"></span>
+<span>High: <strong id="legend-high-val" class="text-slate-800 font-semibold">--</strong> (<span id="legend-high-pct">--%</span>)</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="w-2.5 h-2.5 rounded-xs bg-[#d97706] shrink-0 inline-block"></span>
+<span>Medium: <strong id="legend-med-val" class="text-slate-800 font-semibold">--</strong> (<span id="legend-med-pct">--%</span>)</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="w-2.5 h-2.5 rounded-xs bg-[#546e7a] shrink-0 inline-block"></span>
+<span>Low: <strong id="legend-low-val" class="text-slate-800 font-semibold">--</strong> (<span id="legend-low-pct">--%</span>)</span>
+</div>
+</div>
+</div>
+
+<!-- Horizontal Population Bars -->
+<div class="pt-6 pb-2 space-y-4">
+<!-- High Priority Row -->
+<div class="flex items-center gap-4">
+<div class="w-28 text-right text-xs font-medium text-slate-700 shrink-0">High Priority</div>
+<div class="flex-1">
+<div id="pbd-bar-high" class="h-7 bg-[#dc2626] rounded-md transition-all duration-700 min-w-[8px]" style="width: 0%"></div>
+</div>
+</div>
+
+<!-- Medium Priority Row -->
+<div class="flex items-center gap-4">
+<div class="w-28 text-right text-xs font-medium text-slate-700 shrink-0">Medium Priority</div>
+<div class="flex-1">
+<div id="pbd-bar-med" class="h-7 bg-[#d97706] rounded-md transition-all duration-700 min-w-[8px]" style="width: 0%"></div>
+</div>
+</div>
+
+<!-- Low Priority Row -->
+<div class="flex items-center gap-4">
+<div class="w-28 text-right text-xs font-medium text-slate-700 shrink-0">Low Priority</div>
+<div class="flex-1">
+<div id="pbd-bar-low" class="h-7 bg-[#546e7a] rounded-md transition-all duration-700 min-w-[8px]" style="width: 0%"></div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Recent High-Priority Members List -->
+<div class="col-span-1 md:col-span-12 bg-surface-container-lowest rounded-xl border border-outline-variant shadow-ambient overflow-hidden">
+<div class="border-b border-surface-container-high p-5 flex justify-between items-center bg-surface-bright">
+<h3 id="dashboard-member-results-heading" class="text-headline-sm font-headline-sm text-on-surface">Action Required: High-Priority Members</h3>
+<a href="/outreach" class="text-label-md font-label-md text-primary border border-primary px-3 py-1.5 rounded hover:bg-surface-container transition-colors inline-block">
+    View Full Queue
+</a>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead class="bg-surface-container-low text-label-md font-label-md text-on-secondary-fixed-variant uppercase border-b border-outline-variant">
+<tr>
+<th class="py-3 px-5 font-semibold">Member Name</th>
+<th class="py-3 px-5 font-semibold">Priority Score</th>
+<th class="py-3 px-5 font-semibold">Key Risk Indicator</th>
+<th class="py-3 px-5 font-semibold text-right">Action</th>
+</tr>
+</thead>
+<tbody class="text-body-md font-body-md text-on-surface divide-y divide-surface-container-high">
+<tr class="hover:bg-inverse-on-surface transition-colors group">
+<td class="py-3 px-5">
+<div>
+<span class="font-medium">Loading...</span>
+</div>
+</td>
+<td class="py-3 px-5">
+<span class="bg-error-container text-on-error-container px-2 py-1 rounded text-label-md font-label-md inline-flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">warning</span> --
+</span>
+</td>
+<td class="py-3 px-5 text-on-surface-variant">Loading indicator...</td>
+<td class="py-3 px-5 text-right">
+<span class="text-primary font-label-md text-label-md">View Member</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+<script src="/static/sidebar.js" defer></script>
+<script>
+const API_BASE = '';
+const formatPriorityScore = (value) => {
+    const score = Number(value);
+    return Number.isFinite(score) ? score.toFixed(2) : '--';
+};
+async function loadDashboard(){
+    try{
+        const r=await fetch(`${API_BASE}/api/dashboard`);
+        if(!r.ok) throw new Error(`Dashboard API ${r.status}`);
+        const d=await r.json();
+        // Summary cards (top row - 4 cards)
+        const cards=[...document.querySelectorAll('#overview-stats-grid .text-headline-lg')];
+        const values=[d.total_members,d.high_priority_members,d.medium_priority_members,d.low_priority_members];
+        values.forEach((v,i)=>{ if(cards[i]) cards[i].textContent=(v!=null?(Number(v).toLocaleString()):'--'); });
+
+        // Priority Band Distribution: update donut center and legend
+        try{
+            const pdCard=[...document.querySelectorAll('h3')].find(x=>x.textContent.includes('Priority Band Distribution') || x.textContent.includes('Priority Distribution'))?.closest('.bg-surface-container-lowest') || document.getElementById('priority-donut')?.closest('.bg-surface-container-lowest');
+            if(pdCard){
+                const total=d.total_members||0;
+                const high=d.high_priority_members||0;
+                const med=d.medium_priority_members||0;
+                const low=d.low_priority_members||0;
+                const pct=(n)=> total?(n/total)*100:0;
+                const highPct=pct(high);
+                const medPct=pct(med);
+                const lowPct=pct(low);
+                const donut=pdCard.querySelector('#priority-donut');
+                if(donut && total){
+                    const highEnd=highPct;
+                    const medEnd=highPct+medPct;
+                    donut.style.background=`conic-gradient(#ba1a1a 0% ${highEnd}%, #006591 ${highEnd}% ${medEnd}%, #00685f ${medEnd}% 100%)`;
+                }
+                // donut center
+                const center=pdCard.querySelector('.text-headline-md');
+                if(center) center.textContent=String(total.toLocaleString());
+                // legend blocks
+                const legend=pdCard.querySelector('#priority-legend') || pdCard.querySelector('div.w-full.mt-6');
+                if(legend){
+                    legend.innerHTML=`
+                        <div class="flex justify-between items-center text-body-sm font-body-sm">
+                            <div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-error shrink-0"></div> <span class="font-medium">High (${high.toLocaleString()})</span></div>
+                            <span class="text-on-surface-variant font-medium">${highPct.toFixed(1)}%</span>
+                        </div>
+                        <div class="flex justify-between items-center text-body-sm font-body-sm mt-2">
+                            <div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-secondary shrink-0"></div> <span class="font-medium">Medium (${med.toLocaleString()})</span></div>
+                            <span class="text-on-surface-variant font-medium">${medPct.toFixed(1)}%</span>
+                        </div>
+                        <div class="flex justify-between items-center text-body-sm font-body-sm mt-2">
+                            <div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-primary shrink-0"></div> <span class="font-medium">Low (${low.toLocaleString()})</span></div>
+                            <span class="text-on-surface-variant font-medium">${lowPct.toFixed(1)}%</span>
+                        </div>
+                    `;
+                }
+            }
+        }catch(e){console.warn('Priority distribution update failed',e)}
+
+        // Priority Band Distribution Section (Workload allocation across clinical risk cohorts)
+        try {
+            const total = d.total_members || 10000;
+            const high = d.high_priority_members || 0;
+            const med = d.medium_priority_members || 0;
+            const low = d.low_priority_members || 0;
+            const pct = (n) => total ? (n / total) * 100 : 0;
+            const highPct = pct(high);
+            const medPct = pct(med);
+            const lowPct = pct(low);
+
+            const elLegHighVal = document.getElementById('legend-high-val');
+            if (elLegHighVal) elLegHighVal.textContent = high ? Number(high).toLocaleString() : '--';
+            const elLegHighPct = document.getElementById('legend-high-pct');
+            if (elLegHighPct) elLegHighPct.textContent = `${Math.round(highPct)}%`;
+
+            const elLegMedVal = document.getElementById('legend-med-val');
+            if (elLegMedVal) elLegMedVal.textContent = med ? Number(med).toLocaleString() : '--';
+            const elLegMedPct = document.getElementById('legend-med-pct');
+            if (elLegMedPct) elLegMedPct.textContent = `${Math.round(medPct)}%`;
+
+            const elLegLowVal = document.getElementById('legend-low-val');
+            if (elLegLowVal) elLegLowVal.textContent = low ? Number(low).toLocaleString() : '--';
+            const elLegLowPct = document.getElementById('legend-low-pct');
+            if (elLegLowPct) elLegLowPct.textContent = `${Math.round(lowPct)}%`;
+
+            const barHigh = document.getElementById('pbd-bar-high');
+            if (barHigh) barHigh.style.width = `${Math.max(highPct, 1)}%`;
+            const barMed = document.getElementById('pbd-bar-med');
+            if (barMed) barMed.style.width = `${Math.max(medPct, 1)}%`;
+            const barLow = document.getElementById('pbd-bar-low');
+            if (barLow) barLow.style.width = `${Math.max(lowPct, 1)}%`;
+        } catch(e) { console.warn('Priority band distribution section update failed', e); }
+
+        // Outreach Status (weekly) - update numbers and bar widths
+        try{
+            const osCard=[...document.querySelectorAll('h3')].find(x=>x.textContent.includes('Outreach Status'))?.parentElement?.parentElement;
+            if(osCard){
+                const stats=d.outreach_status||{};
+                const hasStatus = d.outreach_status_available === true && Object.keys(stats).length>0;
+                if(!hasStatus){
+                    const placeholder=osCard.querySelector('.space-y-4');
+                    if(placeholder){
+                        placeholder.innerHTML = '<div class="text-on-surface-variant">Outreach status data unavailable</div>';
+                    }
+                    return;
+                }
+                const completed=stats.Completed||0;
+                const contacted=stats.Contacted||0;
+                const followup=stats['Follow-up']||0;
+                const pending=stats.Pending||0;
+                const inProgress=stats['In Progress']||0;
+                const statusTotal=(completed+contacted+followup+pending+inProgress)||0;
+                const statusPct=(n)=>statusTotal?Math.round((n/statusTotal)*100):0;
+                const setRow=(label, count, pct, colorClass, selectorIndex)=>{
+                    const rows=osCard.querySelectorAll('.space-y-4 > div');
+                    if(rows && rows[selectorIndex]){
+                        const labelEl=rows[selectorIndex].querySelector('.flex.justify-between');
+                        if(labelEl){
+                            const spans=labelEl.querySelectorAll('span');
+                            if(spans[0]) spans[0].textContent=label;
+                            if(spans[1]) spans[1].textContent=String(count);
+                        }
+                        const bar=rows[selectorIndex].querySelector('.w-full > div');
+                        if(bar) bar.style.width=`${pct}%`;
+                    }
+                };
+                setRow('Completed', completed, statusPct(completed), 'bg-primary', 0);
+                setRow('In Progress', inProgress, statusPct(inProgress), 'bg-secondary', 1);
+                setRow('Pending', pending, statusPct(pending), 'bg-error', 2);
+            }
+        }catch(e){console.warn('Outreach status update failed',e)}
+
+        console.log('CareWise dashboard loaded',d);
+    }catch(e){ console.error('Dashboard load failed',e); }
+}
+
+const dashboardLoad = loadDashboard();
+</script>
+<script>
+// Render dashboard cards from the existing APIs; static markup is only a loading shell.
+(() => {
+  const esc = (value) => String(value ?? 'Not available').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const statusColors = { Pending: 'bg-error', 'In Progress': 'bg-secondary', Contacted: 'bg-primary', 'Follow-up': 'bg-tertiary', Completed: 'bg-primary-container' };
+  async function renderLiveDashboard() {
+    const [dashboardResponse, queueResponse] = await Promise.all([
+      fetch('/api/dashboard'), fetch('/api/priority-queue?page=1&page_size=10')
+    ]);
+    if (!dashboardResponse.ok || !queueResponse.ok) throw new Error('Dashboard data request failed');
+    const dashboard = await dashboardResponse.json();
+    const queue = await queueResponse.json();
+    const total = dashboard.total_members || 10000;
+    const card = [...document.querySelectorAll('h3')].find(el => el.textContent.includes('Outreach Status'))?.closest('.bg-surface-container-lowest');
+    if (card) {
+      const rows = ['Pending', 'In Progress', 'Contacted', 'Follow-up', 'Completed'].map(name => {
+        const count = Number(dashboard.outreach_status?.[name] || 0);
+        const percentage = total ? (count / total) * 100 : 0;
+        return `<div><div class="flex justify-between text-body-sm font-body-sm mb-1 text-on-surface-variant"><span>${name}</span><span class="font-bold text-on-surface">${count.toLocaleString()} (${percentage.toFixed(1)}%)</span></div><div class="w-full bg-surface-container h-2 rounded-full overflow-hidden"><div class="${statusColors[name]} h-full rounded-full" style="width:${percentage}%"></div></div></div>`;
+      }).join('');
+      const chart = card.querySelector('.space-y-4');
+      if (chart) chart.innerHTML = rows;
+    }
+
+    // Populate Priority Band Distribution section
+    try {
+      const high = Number(dashboard.high_priority_members || 0);
+      const med = Number(dashboard.medium_priority_members || 0);
+      const low = Number(dashboard.low_priority_members || 0);
+      const highPct = total ? (high / total) * 100 : 0;
+      const medPct = total ? (med / total) * 100 : 0;
+      const lowPct = total ? (low / total) * 100 : 0;
+
+      const elLegHighVal = document.getElementById('legend-high-val');
+      if (elLegHighVal) elLegHighVal.textContent = high ? high.toLocaleString() : '--';
+      const elLegHighPct = document.getElementById('legend-high-pct');
+      if (elLegHighPct) elLegHighPct.textContent = `${Math.round(highPct)}%`;
+
+      const elLegMedVal = document.getElementById('legend-med-val');
+      if (elLegMedVal) elLegMedVal.textContent = med ? med.toLocaleString() : '--';
+      const elLegMedPct = document.getElementById('legend-med-pct');
+      if (elLegMedPct) elLegMedPct.textContent = `${Math.round(medPct)}%`;
+
+      const elLegLowVal = document.getElementById('legend-low-val');
+      if (elLegLowVal) elLegLowVal.textContent = low ? low.toLocaleString() : '--';
+      const elLegLowPct = document.getElementById('legend-low-pct');
+      if (elLegLowPct) elLegLowPct.textContent = `${Math.round(lowPct)}%`;
+
+      const barHigh = document.getElementById('pbd-bar-high');
+      if (barHigh) barHigh.style.width = `${Math.max(highPct, 1)}%`;
+      const barMed = document.getElementById('pbd-bar-med');
+      if (barMed) barMed.style.width = `${Math.max(medPct, 1)}%`;
+      const barLow = document.getElementById('pbd-bar-low');
+      if (barLow) barLow.style.width = `${Math.max(lowPct, 1)}%`;
+    } catch (e) {
+      console.warn('Live PBD update error', e);
+    }
+
+    const heading = [...document.querySelectorAll('h3')].find(el => el.textContent.includes('Action Required: High-Priority Members'));
+    const tbody = heading?.closest('.bg-surface-container-lowest')?.querySelector('tbody');
+    if (tbody) {
+      const highPriority = (queue.items || []).filter(item => item.priority_band === 'High Priority').slice(0, 5);
+      tbody.innerHTML = highPriority.length ? highPriority.map(item => {
+        const indicator = Array.isArray(item.main_risk_factors) && item.main_risk_factors.length ? item.main_risk_factors[0] : 'No key risk indicator available';
+        return `<tr class="hover:bg-inverse-on-surface transition-colors group"><td class="py-3 px-5"><span class="font-medium">${esc(item.member_name)}</span></td><td class="py-3 px-5"><span class="bg-error-container text-on-error-container px-2 py-1 rounded text-label-md font-label-md inline-flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">warning</span>${esc(formatPriorityScore(item.priority_score))}</span></td><td class="py-3 px-5 text-on-surface-variant">${esc(indicator)}</td><td class="py-3 px-5 text-right"><a class="text-primary hover:text-primary-container font-label-md text-label-md" href="/member?id=${encodeURIComponent(item.member_id)}">View Member</a></td></tr>`;
+      }).join('') : '<tr><td colspan="4" class="py-5 px-5 text-on-surface-variant">No high-priority members available.</td></tr>';
+    }
+  }
+  Promise.all([dashboardLoad, renderLiveDashboard()]).then(() => {
+    const search = document.getElementById('dashboard-search');
+    if (search?.value) search.dispatchEvent(new Event('input'));
+  }).catch(error => console.error('Live dashboard render failed', error)).finally(() => {
+    const loading = document.getElementById('dashboard-loading');
+    const content = document.getElementById('dashboard-content');
+    if (loading) loading.hidden = true;
+    if (content) {
+      content.hidden = false;
+      content.setAttribute('aria-busy', 'false');
+    }
+  });
+
+  // Fallback safety timeout so dashboard never remains stuck in loading
+  setTimeout(() => {
+    const loading = document.getElementById('dashboard-loading');
+    const content = document.getElementById('dashboard-content');
+    if (loading && !loading.hidden) {
+      loading.hidden = true;
+      if (content) {
+        content.hidden = false;
+        content.setAttribute('aria-busy', 'false');
+      }
+    }
+  }, 2000);
+})();
+</script>
+<script>
+// Dashboard search uses the existing paginated priority-queue API and only real member fields.
+(() => {
+  const search = document.getElementById('dashboard-search');
+  let members = null;
+  const esc = value => String(value ?? '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+  async function loadMembers() {
+    if (members) return members;
+    const firstResponse = await fetch('/api/priority-queue?page=1&page_size=100');
+    if (!firstResponse.ok) throw new Error('Member search request failed');
+    const first = await firstResponse.json();
+    const pageCount = Math.ceil(Number(first.total || 0) / 100);
+    const pages = await Promise.all(Array.from({ length: Math.max(0, pageCount - 1) }, (_, index) =>
+      fetch(`/api/priority-queue?page=${index + 2}&page_size=100`).then(response => response.ok ? response.json() : { items: [] })
+    ));
+    members = (first.items || []).concat(...pages.map(page => page.items || []));
+    return members;
+  }
+  function tableParts() {
+    const heading = document.getElementById('dashboard-member-results-heading');
+    return { heading, tbody: heading?.closest('.bg-surface-container-lowest')?.querySelector('tbody') };
+  }
+  function renderResults(results, query) {
+    const { heading, tbody } = tableParts();
+    if (!heading || !tbody) return;
+    heading.textContent = query ? `Member Search Results (${results.length.toLocaleString()})` : 'Action Required: High-Priority Members';
+    const visible = query ? results.slice(0, 5) : results.filter(item => item.priority_band === 'High Priority').slice(0, 5);
+    tbody.innerHTML = visible.length ? visible.map(item => {
+      const indicator = Array.isArray(item.main_risk_factors) && item.main_risk_factors.length ? item.main_risk_factors[0] : 'No key risk indicator available';
+      return `<tr class="hover:bg-inverse-on-surface transition-colors group"><td class="py-3 px-5"><span class="font-medium">${esc(item.member_name)}</span></td><td class="py-3 px-5"><span class="bg-error-container text-on-error-container px-2 py-1 rounded text-label-md font-label-md inline-flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">warning</span>${esc(formatPriorityScore(item.priority_score))}</span></td><td class="py-3 px-5 text-on-surface-variant">${esc(indicator)}</td><td class="py-3 px-5 text-right"><a class="text-primary hover:text-primary-container font-label-md text-label-md" href="/member?id=${encodeURIComponent(item.member_id)}">View Member</a></td></tr>`;
+    }).join('') : '<tr><td colspan="4" class="py-5 px-5 text-on-surface-variant">No members match this search.</td></tr>';
+    let summary = document.getElementById('dashboard-search-summary');
+    if (!summary) { summary = document.createElement('p'); summary.id = 'dashboard-search-summary'; summary.className = 'text-body-sm text-on-surface-variant px-5 py-3 border-t border-surface-container-high'; tbody.closest('table')?.parentElement?.appendChild(summary); }
+    summary.textContent = query ? `Showing ${visible.length} of ${results.length.toLocaleString()} matching members.` : '';
+    summary.hidden = !query;
+  }
+  search?.addEventListener('input', async event => {
+    const query = event.target.value.trim().toLowerCase();
+    try {
+      const allMembers = await loadMembers();
+      if (!query) { renderResults(allMembers, ''); return; }
+      const results = allMembers.filter(member => [member.member_name, member.member_id, member.priority_band, member.main_risk_factors, member.next_best_action]
+        .flatMap(value => Array.isArray(value) ? value : [value]).filter(Boolean).join(' ').toLowerCase().includes(query));
+      renderResults(results, query);
+    } catch (error) { console.error('Dashboard search failed', error); }
+  });
+})();
+</script>
+<script>
+  (async () => {
+    const el = document.getElementById('dashboard-insight-text');
+    const heading = document.getElementById('dashboard-insight-heading');
+    if (!el) return;
+    try {
+      const r = await fetch('/api/dashboard-insight');
+      if (!r.ok) throw new Error('Insight API error');
+      const data = await r.json();
+      el.textContent = data.insight || 'Insight unavailable.';
+      if (heading) heading.textContent = data.source === 'gemini' ? 'AI Insight Generated' : 'Population Summary';
+    } catch (e) {
+      el.textContent = 'Insight unavailable at this time.';
+      if (heading) heading.textContent = 'Population Summary';
+    }
+  })();
+</script>
+</body></html>
