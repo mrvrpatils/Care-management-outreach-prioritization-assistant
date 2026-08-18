@@ -16,9 +16,22 @@ load_dotenv(PRIMARY_ENV if PRIMARY_ENV.is_file() else CI_ENV)
 from sqlalchemy.pool import NullPool
 
 def get_database_url() -> str:
-    db_url = os.getenv("DATABASE_URL")
-    if not db_url:
-        # If running in serverless environment (Vercel, AWS Lambda) where root is read-only
+    db_url = os.getenv("DATABASE_URL", "").strip()
+    
+    # Detect placeholder strings or unconfigured templates (e.g. [YOUR-PROJECT-REF])
+    is_placeholder = (
+        not db_url or
+        "[" in db_url or
+        "]" in db_url or
+        "YOUR-PROJECT-REF" in db_url or
+        "YOUR_PROJECT" in db_url or
+        "YOUR-PASSWORD" in db_url or
+        "YOUR_GCP" in db_url or
+        "example.com" in db_url
+    )
+
+    if is_placeholder:
+        # Fallback to local / serverless SQLite database
         if os.getenv("VERCEL") or os.getenv("AWS_LAMBDA_FUNCTION_NAME"):
             tmp_db = Path("/tmp/carewise.db")
             seed_db = DATA_DIR / "carewise.db"
@@ -28,12 +41,13 @@ def get_database_url() -> str:
                     shutil.copy2(seed_db, tmp_db)
                 except Exception:
                     pass
-            db_url = f"sqlite:///{tmp_db.as_posix()}"
+            return f"sqlite:///{tmp_db.as_posix()}"
         else:
             DATA_DIR.mkdir(parents=True, exist_ok=True)
             db_path = DATA_DIR / "carewise.db"
-            db_url = f"sqlite:///{db_path.as_posix()}"
-    elif db_url.startswith("postgres://"):
+            return f"sqlite:///{db_path.as_posix()}"
+
+    if db_url.startswith("postgres://"):
         # Fix legacy postgres:// URL scheme for SQLAlchemy 2.x
         db_url = db_url.replace("postgres://", "postgresql+psycopg2://", 1)
     elif db_url.startswith("postgresql://") and not db_url.startswith("postgresql+"):
