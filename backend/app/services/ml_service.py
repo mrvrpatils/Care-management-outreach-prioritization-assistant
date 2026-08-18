@@ -4,7 +4,6 @@ import json
 import joblib
 import numpy as np
 import pandas as pd
-import shap
 
 BASE = Path(__file__).resolve().parents[2]
 MODEL_DIR = BASE / "models"
