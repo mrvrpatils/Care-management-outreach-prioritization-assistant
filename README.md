@@ -1,14 +1,14 @@
-# CareWise AI — Complete Project
+# Care Management Outreach Prioritization Assistant — Complete Project
 
-CareWise AI is an AI-powered Care Management Outreach Prioritization Assistant built with **FastAPI**, **SQLAlchemy**, **Scikit-Learn / SHAP**, and a responsive frontend interface.
+Care Management Outreach Prioritization Assistant is an AI-powered clinical outreach prioritization platform built with **FastAPI**, **SQLAlchemy**, **Scikit-Learn / SHAP**, and a responsive modern frontend interface.
 
 ---
 
 ## 📁 Project Structure
 
 ```
-CareWise_AI/
-├── START_CAREWISE.bat          # 1-click startup script (Windows)
+Care-management-outreach-prioritization-assistant/
+├── START_ASSISTANT.bat         # 1-click startup script (Windows)
 ├── README.md                   # Project overview and instructions
 ├── docs/                       # Project documentation and specifications
 │   ├── DATA_ANALYSIS_NOTES.md
@@ -64,7 +64,7 @@ CareWise_AI/
 ## 🚀 Quick Start
 
 ### Option 1: Double-click Startup (Windows)
-Double click `START_CAREWISE.bat` in the project root.
+Double click `START_ASSISTANT.bat` in the project root.
 
 ### Option 2: Terminal / VS Code
 ```powershell
@@ -80,15 +80,15 @@ Open [http://127.0.0.1:8000](http://127.0.0.1:8000) in your browser.
 
 ## 🗄️ Database Configuration
 
-By default, CareWise AI uses **SQLite** (`backend/data/carewise.db`) with zero setup needed.
+By default, the assistant uses **SQLite** (`backend/data/carewise.db`) with zero setup needed.
 
 To use **PostgreSQL** or **MySQL**, create a `backend/.env` file:
 ```env
 # PostgreSQL
-DATABASE_URL=postgresql://username:password@localhost:5432/carewise
+DATABASE_URL=postgresql://username:password@localhost:5432/care_management
 
 # MySQL
-DATABASE_URL=mysql+pymysql://username:password@localhost:3306/carewise
+DATABASE_URL=mysql+pymysql://username:password@localhost:3306/care_management
 
 # Optional Gemini API Key for dynamic LLM call guide generation
 GEMINI_API_KEY=your_key_here

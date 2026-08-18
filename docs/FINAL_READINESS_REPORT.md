@@ -1,4 +1,4 @@
-# CareWise AI — Final Readiness Report
+# Care Management Outreach Prioritization Assistant — Final Readiness Report
 
 Project status
 - Cognizant hackathon requirements audit: PASS (see `scripts/requirements_audit.py`)

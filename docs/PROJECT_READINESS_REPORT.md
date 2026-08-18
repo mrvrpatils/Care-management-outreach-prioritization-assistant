@@ -1,4 +1,4 @@
-# CareWise AI — Project Readiness Report
+# Care Management Outreach Prioritization Assistant — Project Readiness Report
 
 Summary
 - Audit: Cognizant hackathon requirements audit — PASS

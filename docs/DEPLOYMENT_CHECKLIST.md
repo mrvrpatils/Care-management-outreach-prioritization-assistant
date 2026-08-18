@@ -1,4 +1,4 @@
-# Deployment Checklist — CareWise AI (backend)
+# Deployment Checklist — Care Management Outreach Prioritization Assistant (backend)
 
 1) Environment & dependencies
    - Create a Python 3.11+ virtual environment and install requirements:

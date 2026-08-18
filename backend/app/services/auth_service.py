@@ -14,7 +14,7 @@ from ..db.models import LoginModel
 from ..schemas.api_models import UserRegisterRequest
 
 
-AUTH_SECRET_KEY = os.getenv("AUTH_SECRET_KEY", "carewise-secret-healthcare-token-key-2026")
+AUTH_SECRET_KEY = os.getenv("AUTH_SECRET_KEY", "care-outreach-secret-healthcare-token-key-2026")
 TOKEN_EXPIRY_SECONDS = 86400 * 7  # 7 days
 
 

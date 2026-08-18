@@ -1,6 +1,6 @@
-# CareWise AI — Backend
+# Care Management Outreach Prioritization Assistant — Backend
 
-FastAPI backend for the existing Google Stitch CareWise AI frontend.
+FastAPI backend for the Care Management Outreach Prioritization Assistant frontend.
 
 ## What is included
 

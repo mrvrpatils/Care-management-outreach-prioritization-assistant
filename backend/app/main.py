@@ -47,7 +47,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     lifespan=lifespan,
-    title="CareWise AI Backend",
+    title="Care Management Outreach Prioritization Assistant Backend",
     version="1.0.0",
     description="FastAPI backend for the Care Management Outreach Prioritization Assistant."
 )

@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 
 /**
- * CareWise AI Sidebar Navigation Component
+ * Care Management Outreach Prioritization Assistant Sidebar Navigation Component
  * Features:
  * - Dashboard, Outreach Queue, Analytics navigation
  * - Workload Queues section with High Priority, Follow-ups, and Completed queues

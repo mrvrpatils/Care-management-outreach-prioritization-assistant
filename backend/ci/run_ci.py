@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""CI-ready test runner for CareWise AI backend.
+"""CI-ready test runner for Care Management Outreach Prioritization Assistant backend.
 
 Usage: run from `backend/` directory or execute directly. The script will:
 - ensure a Python virtualenv at `.venv` (create if absent)

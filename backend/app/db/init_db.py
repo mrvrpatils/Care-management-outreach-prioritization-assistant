@@ -78,14 +78,14 @@ def init_db():
                 LoginModel(
                     username="admin",
                     password_hash=hash_password("admin123"),
-                    email="admin@carewise.health",
+                    email="admin@careoutreach.health",
                     full_name="Dr. Sarah Mitchell",
                     role="Administrator"
                 ),
                 LoginModel(
                     username="caremanager",
                     password_hash=hash_password("password123"),
-                    email="caremanager@carewise.health",
+                    email="caremanager@careoutreach.health",
                     full_name="Elena Rostova",
                     role="Lead Care Manager"
                 )

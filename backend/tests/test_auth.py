@@ -76,7 +76,7 @@ def test_user_registration_and_db_persistence():
             "username": unique_username,
             "password": "Password@123",
             "full_name": "Nurse Evelyn Wright",
-            "email": f"{unique_username}@carewise.health",
+            "email": f"{unique_username}@careoutreach.health",
             "role": "Care Manager"
         }
         r = client.post("/api/auth/register", json=reg_payload)
@@ -93,7 +93,7 @@ def test_user_registration_and_db_persistence():
             user_in_db = db.query(LoginModel).filter(LoginModel.username == unique_username).first()
             assert user_in_db is not None
             assert user_in_db.full_name == "Nurse Evelyn Wright"
-            assert user_in_db.email == f"{unique_username}@carewise.health"
+            assert user_in_db.email == f"{unique_username}@careoutreach.health"
             assert verify_password("Password@123", user_in_db.password_hash) is True
         finally:
             db.close()

@@ -256,7 +256,7 @@
           onclick="window.carewiseLogout()"
           title="Sign Out"
           class="cw-logout-btn flex items-center justify-center w-7 h-7 rounded-lg text-outline hover:text-[#ba1a1a] hover:bg-[#ba1a1a]/10 transition shrink-0"
-          aria-label="Sign out of CareWise"
+          aria-label="Sign out of Care Management Outreach Portal"
         >
           ${ICONS.logout}
         </button>
@@ -270,7 +270,7 @@
 
     const logo = sidebar.querySelector('.cw-sidebar-logo');
     if (logo && !logo.querySelector('img')) {
-      logo.innerHTML = '<img src="/static/brand-mark.svg" alt="CareWise care management logo" class="cw-brand-mark">';
+      logo.innerHTML = '<img src="/static/brand-mark.svg" alt="Care Management Outreach Prioritization Assistant Logo" class="cw-brand-mark">';
     }
 
     const brand = sidebar.querySelector('.px-6.mb-8') || sidebar.querySelector('.px-6.mb-6') || sidebar.querySelector('.cw-sidebar-brand');
