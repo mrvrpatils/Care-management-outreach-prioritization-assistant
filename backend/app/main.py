@@ -76,8 +76,15 @@ app.add_middleware(
 
 # Serve the frontend from this same FastAPI application.
 ROOT_DIR = BACKEND_DIR.parent
-FRONTEND_DIR = ROOT_DIR / "frontend" if (ROOT_DIR / "frontend").is_dir() else BACKEND_DIR / "frontend"
-app.mount("/static", StaticFiles(directory=FRONTEND_DIR), name="static")
+candidates = [
+    ROOT_DIR / "frontend",
+    BACKEND_DIR / "frontend",
+    Path(__file__).resolve().parents[2] / "frontend",
+    Path("/var/task/frontend"),
+]
+FRONTEND_DIR = next((p for p in candidates if p.is_dir()), ROOT_DIR / "frontend")
+if FRONTEND_DIR.is_dir():
+    app.mount("/static", StaticFiles(directory=FRONTEND_DIR), name="static")
 
 @app.get("/login", include_in_schema=False)
 def login_page():

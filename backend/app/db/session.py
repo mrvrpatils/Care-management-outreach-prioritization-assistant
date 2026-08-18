@@ -13,6 +13,8 @@ CI_ENV = BACKEND_DIR / "ci" / ".env"
 load_dotenv(PRIMARY_ENV if PRIMARY_ENV.is_file() else CI_ENV)
 
 
+from sqlalchemy.pool import NullPool
+
 def get_database_url() -> str:
     db_url = os.getenv("DATABASE_URL")
     if not db_url:
@@ -48,11 +50,18 @@ if DATABASE_URL.startswith("sqlite"):
     connect_args = {"check_same_thread": False}
     engine_kwargs["pool_pre_ping"] = False
 else:
-    # MySQL Workbench or Supabase PostgreSQL
-    engine_kwargs["pool_pre_ping"] = True
-    engine_kwargs["pool_recycle"] = 300
-    engine_kwargs["pool_size"] = 10
-    engine_kwargs["max_overflow"] = 20
+    # Supabase PostgreSQL or MySQL
+    if "postgresql" in DATABASE_URL and "sslmode" not in DATABASE_URL:
+        connect_args["sslmode"] = "require"
+    
+    # Use NullPool on serverless so connections close immediately
+    if os.getenv("VERCEL") or os.getenv("AWS_LAMBDA_FUNCTION_NAME"):
+        engine_kwargs["poolclass"] = NullPool
+    else:
+        engine_kwargs["pool_pre_ping"] = True
+        engine_kwargs["pool_recycle"] = 300
+        engine_kwargs["pool_size"] = 5
+        engine_kwargs["max_overflow"] = 10
 
 engine = create_engine(
     DATABASE_URL,

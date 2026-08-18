@@ -64,61 +64,77 @@ def _deterministic_status(member_id):
 class DataService:
     def __init__(self):
         # Ensure database tables exist and are seeded
-        init_db()
+        try:
+            init_db()
+        except Exception as e:
+            print(f"[DataService] init_db error: {e}")
 
         # Load member dataset from database (or CSV fallback)
+        self.df = pd.DataFrame()
         try:
             with engine.connect() as conn:
                 self.df = pd.read_sql("SELECT * FROM members ORDER BY member_id", conn)
-        except Exception:
+        except Exception as e:
+            print(f"[DataService] DB read error, using CSV fallback: {e}")
             self.df = pd.DataFrame()
 
-        if self.df.empty and DATA_PATH.exists():
-            self.df = pd.read_csv(DATA_PATH)
+        if (self.df is None or self.df.empty) and DATA_PATH.exists():
+            try:
+                self.df = pd.read_csv(DATA_PATH)
+            except Exception as e:
+                print(f"[DataService] CSV read error: {e}")
+                self.df = pd.DataFrame()
 
-        self.df["days_since_discharge"] = self.df["days_since_discharge"].astype("float")
-        self.df["total_utilization_30d"] = (
-            self.df["er_visits_30d"] + self.df["hospitalizations_30d"] +
-            self.df["outpatient_visits_30d"]
-        )
-        self.df["acute_utilization_30d"] = (
-            self.df["er_visits_30d"] + self.df["hospitalizations_30d"]
-        )
-        self.df["social_risk_count"] = self.df[
-            ["transportation_barrier", "food_insecurity", "housing_instability", "financial_barrier"]
-        ].sum(axis=1)
-        self.df["post_discharge_24h"] = (
-            (self.df["recent_discharge_30d"] == 1) &
-            (self.df["days_since_discharge"] == 0)
-        ).astype(int)
-        self.df["clinical_burden"] = self.df["condition_count"]
-        self.df["care_gap_burden"] = self.df["care_gap_count"]
+        if not self.df.empty:
+            self.df["days_since_discharge"] = self.df["days_since_discharge"].astype("float")
+            self.df["total_utilization_30d"] = (
+                self.df["er_visits_30d"] + self.df["hospitalizations_30d"] +
+                self.df["outpatient_visits_30d"]
+            )
+            self.df["acute_utilization_30d"] = (
+                self.df["er_visits_30d"] + self.df["hospitalizations_30d"]
+            )
+            self.df["social_risk_count"] = self.df[
+                ["transportation_barrier", "food_insecurity", "housing_instability", "financial_barrier"]
+            ].sum(axis=1)
+            self.df["post_discharge_24h"] = (
+                (self.df["recent_discharge_30d"] == 1) &
+                (self.df["days_since_discharge"] == 0)
+            ).astype(int)
+            self.df["clinical_burden"] = self.df["condition_count"]
+            self.df["care_gap_burden"] = self.df["care_gap_count"]
 
-        # Load outreach statuses from Database
+        # Load outreach statuses from Database or JSON
         self.status = {}
-        self.load_status_from_db()
+        try:
+            self.load_status_from_db()
+        except Exception as e:
+            print(f"[DataService] load_status_from_db error: {e}")
 
     def load_status_from_db(self):
-        db = SessionLocal()
         try:
-            records = db.query(OutreachStatusModel).all()
-            if records:
-                self.status = {r.member_id: r.status for r in records}
-            else:
-                # If DB outreach_statuses is empty, check JSON fallback
-                if STATUS_PATH.exists():
-                    try:
-                        self.status = json.loads(STATUS_PATH.read_text(encoding="utf-8"))
-                    except Exception:
-                        self.status = {}
+            db = SessionLocal()
+            try:
+                records = db.query(OutreachStatusModel).all()
+                if records:
+                    self.status = {r.member_id: r.status for r in records}
                 else:
+                    if STATUS_PATH.exists():
+                        try:
+                            self.status = json.loads(STATUS_PATH.read_text(encoding="utf-8"))
+                        except Exception:
+                            self.status = {}
+                    else:
+                        self.status = {}
+            finally:
+                db.close()
+        except Exception as e:
+            print(f"[DataService] DB status fetch error: {e}")
+            if STATUS_PATH.exists():
+                try:
+                    self.status = json.loads(STATUS_PATH.read_text(encoding="utf-8"))
+                except Exception:
                     self.status = {}
-                if self.status:
-                    db_records = [OutreachStatusModel(member_id=k, status=v) for k, v in self.status.items()]
-                    db.bulk_save_objects(db_records)
-                    db.commit()
-        finally:
-            db.close()
 
     def save_status(self):
         try:
