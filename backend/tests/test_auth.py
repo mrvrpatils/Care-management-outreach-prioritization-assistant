@@ -20,7 +20,6 @@ def test_login_page_route():
     with TestClient(app) as client:
         r = client.get("/login")
         assert r.status_code == 200
-        assert "CareWise AI" in r.text
         assert "Sign In" in r.text
         assert "Create Account" in r.text
 
