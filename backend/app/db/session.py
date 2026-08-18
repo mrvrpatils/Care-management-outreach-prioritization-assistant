@@ -16,9 +16,21 @@ load_dotenv(PRIMARY_ENV if PRIMARY_ENV.is_file() else CI_ENV)
 def get_database_url() -> str:
     db_url = os.getenv("DATABASE_URL")
     if not db_url:
-        DATA_DIR.mkdir(parents=True, exist_ok=True)
-        db_path = DATA_DIR / "carewise.db"
-        db_url = f"sqlite:///{db_path.as_posix()}"
+        # If running in serverless environment (Vercel, AWS Lambda) where root is read-only
+        if os.getenv("VERCEL") or os.getenv("AWS_LAMBDA_FUNCTION_NAME"):
+            tmp_db = Path("/tmp/carewise.db")
+            seed_db = DATA_DIR / "carewise.db"
+            if not tmp_db.exists() and seed_db.exists():
+                import shutil
+                try:
+                    shutil.copy2(seed_db, tmp_db)
+                except Exception:
+                    pass
+            db_url = f"sqlite:///{tmp_db.as_posix()}"
+        else:
+            DATA_DIR.mkdir(parents=True, exist_ok=True)
+            db_path = DATA_DIR / "carewise.db"
+            db_url = f"sqlite:///{db_path.as_posix()}"
     elif db_url.startswith("postgres://"):
         # Fix legacy postgres:// URL scheme for SQLAlchemy 2.x
         db_url = db_url.replace("postgres://", "postgresql+psycopg2://", 1)

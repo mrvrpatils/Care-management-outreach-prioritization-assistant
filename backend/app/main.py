@@ -33,16 +33,30 @@ from .db import init_db, SessionLocal, get_db, CampaignModel, MemberModel, Outre
 # In-memory prediction cache built from the real dataset/artifacts.
 predictions = None
 
+def ensure_initialized():
+    global predictions
+    if predictions is not None:
+        return
+    try:
+        init_db()
+    except Exception as e:
+        print(f"[DB Init Warning]: {e}")
+    try:
+        probs, scores, bands = ml_service.initialize(data_service.df)
+        data_service.df["outreach_probability"] = probs
+        data_service.df["priority_score"] = scores
+        data_service.df["priority_band"] = bands
+        data_service.df["next_best_action"] = data_service.df.apply(next_best_action, axis=1)
+        predictions = True
+    except Exception as e:
+        print(f"[ML Init Warning]: {e}")
+
+# Run immediate initialization on module load
+ensure_initialized()
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    global predictions
-    init_db()
-    probs, scores, bands = ml_service.initialize(data_service.df)
-    data_service.df["outreach_probability"] = probs
-    data_service.df["priority_score"] = scores
-    data_service.df["priority_band"] = bands
-    data_service.df["next_best_action"] = data_service.df.apply(next_best_action, axis=1)
-    predictions = True
+    ensure_initialized()
     yield
 
 app = FastAPI(
